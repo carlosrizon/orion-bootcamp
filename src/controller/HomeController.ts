@@ -1,3 +1,5 @@
+import { Home } from '../entity/Home.entity';
+import { database } from '../config/database';
 import { Request, Response } from 'express';
 
 export class HomeController {
@@ -25,7 +27,13 @@ export class HomeController {
    *                     type: object
    *                     description: 'objeto json de retorno'
    */
-  hello(_req: Request, res: Response) {
+  async hello(_req: Request, res: Response) {
+    // @See https://typeorm.io/#features
+    const homeRepository = database.getRepository(Home);
+    const home = new Home();
+    home.name = 'Timber';
+    // Insere o registro no banco.
+    await homeRepository.save(home);
     return res.status(200).send('Hello');
   }
 }

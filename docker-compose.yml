@@ -17,26 +17,9 @@ services:
       NODE_ENV: development
       SERVER_PORT: 4444
       DB_DATABASE: orion
-      DB_CONNECTION_STRING: mongodb://orion_root:j5m966qp7jiypfda@orion-mongo:27017
-      # DB_CONNECTION_STRING: mysql://orion_root:j5m966qp7jiypfda@orion-mysql:3306
+      DB_CONNECTION_STRING: mysql://orion_root:j5m966qp7jiypfda@orion-mysql:3306
     networks:
       - orion-connect
-  
-  orion-mongo:
-    container_name: orion-mongo
-    image: mongo
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: orion_root
-      MONGO_INITDB_ROOT_PASSWORD: j5m966qp7jiypfda
-      MONGO_INITDB_DATABASE: orion
-    ports:
-      - 27017:27017
-    volumes:
-      - ~/docker/volumes/OrionApi_MongoDB:/data/db
-    networks:
-      - orion-connect
-    logging:
-      driver: none
   
   orion-mysql:
     container_name: orion-mysql

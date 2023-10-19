@@ -1,17 +1,8 @@
 import { DataSource } from 'typeorm';
 
-export const MongoDataSource = new DataSource({
-  name: 'default',
-  type: 'mongodb',
-  authSource: 'admin',
-  database: process.env.DB_DATABASE,
-  url: process.env.DB_CONNECTION_STRING,
-  entities: ['src/entity/*.ts', 'entity/*.js'],
-  logging: true,
-  synchronize: true
-});
+// @See https://typeorm.io/#creating-a-new-datasource
 
-export const MysqlDataSource = new DataSource({
+export const database = new DataSource({
   name: 'default',
   type: 'mysql',
   database: process.env.DB_DATABASE,
