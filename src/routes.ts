@@ -1,9 +1,9 @@
 import { Router } from 'express';
-import { HomeController } from './controller/HomeController';
+import { UsersController } from './controller/UsersController';
 import { HomeValidator } from './validator/Home.validator';
 
 const router = Router();
 
-router.get('/', new HomeValidator().post, new HomeController().hello);
+router.post('/users', new HomeValidator().post, new UsersController().create);
 
 export default router;
