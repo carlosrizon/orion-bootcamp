@@ -5,8 +5,6 @@ import swaggerJSDoc from 'swagger-jsdoc';
 import { MysqlDataSource } from './config/database';
 import { swaggerConfig } from './config/swagger';
 import routes from './routes';
-import { User } from './entity/user';
-import { EmailSender } from './library/mail';
 
 MysqlDataSource.initialize()
   .then(async () => {
