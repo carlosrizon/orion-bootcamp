@@ -12,7 +12,6 @@ services:
       - /app/node_modules
     ports:
       - 4444:4444
-    command: npm run start:dev
     environment:
       JWT_SECRET_KEY: 3RWS8GmVfz6Ax7l0q5nQ2RUySvPsdh0aK3GSY4mTRhlICvi8Il
       EMAIL_USER: ${EMAIL_USER}
@@ -37,7 +36,7 @@ services:
       MYSQL_ROOT_PASSWORD: m45ug42qkr5pdzbb
       MYSQL_DATABASE: orion
     ports:
-      - 3306:3306
+      - 3307:3306
     volumes:
       - ~/docker/volumes/OrionApi_MySQL:/var/lib/mysql
     networks:

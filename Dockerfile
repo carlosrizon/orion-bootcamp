@@ -7,12 +7,13 @@ ENV PATH /app/node_modules/.bin:$PATH
 COPY tsconfig*.json ./
 COPY package*.json ./
 
-RUN npm install
+COPY . .
 
-COPY src/ src/
+RUN npm install
 
 RUN chown -R node /app/node_modules
 
 USER node
 
 EXPOSE 8080
+CMD [ "npm", "run", "start:dev" ]
