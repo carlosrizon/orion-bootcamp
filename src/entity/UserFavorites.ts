@@ -1,7 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, JoinColumn, ManyToOne } from 'typeorm';
 
-import Character from './Character';
-import User from './User';
+import { Character } from './Character';
+import { User } from './User';
 
 /**
  * Entidade que relaciona usuários aos seus personagens marcados como favoritos

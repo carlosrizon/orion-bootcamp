@@ -7,7 +7,7 @@ import {
   BeforeInsert
 } from 'typeorm';
 
-import User from './User';
+import { User } from './User';
 
 /**
  * Entidade com informações relacionadas a acessos (logins bem-sucedidos) de usuários
