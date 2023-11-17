@@ -6,6 +6,7 @@ import { Metrics } from '../entity/Metrics';
 import { Comic } from '../entity/Comic';
 import { Series } from '../entity/Series';
 import { Story } from '../entity/Story';
+import { UserFavorites } from '../entity/UserFavorites';
 
 enum Category {
   Characters = 'characters',
@@ -15,17 +16,12 @@ enum Category {
   Events = 'events'
 }
 
-/**
- * Classe com operações relacionadas à operações relacionadas a cards exibidos na aplicação
- */
-//TODO: alterar nome do controller para algo como CardsController (sugestão)
 export class CharacterController {
   /**
    * @swagger
    *
    * /v1/select/{character_id}:
    *   get:
-   *
    *     summary: Requisita informações sobre personagem
    *     description: Retorna detalhes sobre um personagem selecionado e realiza a contabilização da métrica de cliques por usuário por card
    *     security:
@@ -98,23 +94,22 @@ export class CharacterController {
    */
   async countClick(req: Request, res: Response) {
     try {
-      const cardCategory: Category = req.params.category as Category;
       const character_id: number = Number(req.params.character_id);
       const user_id: number = req.body.user.id;
 
       const userRepository = MysqlDataSource.getRepository(User);
       const characterRepository = MysqlDataSource.getRepository(Character);
-      const metricsRepository = MysqlDataSource.getRepository(Metrics);
+      const userFavoritesRepository = MysqlDataSource.getRepository(Metrics);
 
       //procura para ver se a métrica já existe
-      const metric = await metricsRepository.findOne({
+      const metric = await userFavoritesRepository.findOne({
         where: { user: { id: user_id }, character: { id: character_id } }
       });
 
       if (metric) {
         metric.clicks += 1;
 
-        await metricsRepository.save(metric);
+        await userFavoritesRepository.save(metric);
       } else {
         //find no usuario
         const user: User = await userRepository.findOne({
@@ -147,12 +142,12 @@ export class CharacterController {
         }
 
         //cria nova métrica na tabela
-        const metricsEntry = new Metrics();
-        metricsEntry.user = user;
-        metricsEntry.character = character;
-        metricsEntry.clicks = 1;
+        const metricEntry = new Metrics();
+        metricEntry.user = user;
+        metricEntry.character = character;
+        metricEntry.clicks = 1;
 
-        await MysqlDataSource.manager.save(metricsEntry);
+        await MysqlDataSource.manager.save(metricEntry);
       }
 
       return res.status(200).send({
@@ -176,9 +171,8 @@ export class CharacterController {
   /**
    * @swagger
    *
-   * /v1/{category}:
+   * /v1/getPage/{category}/{page}:
    *   get:
-   *
    *     summary: Requisita páginas de uma categoria especificada
    *     description: Retorna uma quantidade de 9 cards por página da categoria especificada
    *     security:
@@ -197,19 +191,13 @@ export class CharacterController {
    *             - stories
    *             - events
    *         description: Categoria desejada
-   *       - in: query
+   *       - in: path
    *         name: page
-   *         required: false
+   *         required: true
    *         schema:
    *           type: integer
    *           minimum: 1
    *         description: Página desejada
-   *       - in: query
-   *         name: search
-   *         required: false
-   *         schema:
-   *           type: string
-   *         description: Texto de busca especificado
    *     responses:
    *       '200':
    *           description: 'Requisição bem sucedida.'
@@ -270,86 +258,63 @@ export class CharacterController {
   async getPage(req: Request, res: Response) {
     try {
       const pageCategory: Category = req.params.category as Category;
-      const pageNumber: number = Number(req.query.page) || 1;
-      const searchText: string = (req.query.search as string) || '';
+      const page: number = Number(req.params.page);
 
-      const offset = (pageNumber - 1) * 9;
+      const offset = (page - 1) * 9;
       const limit = 9;
 
-      let found;
+      let cards;
 
       switch (pageCategory) {
         case Category.Characters:
           const charactersRepository = MysqlDataSource.getRepository(Character);
 
-          found = await charactersRepository
-            .createQueryBuilder('characters')
-            .where(
-              'characters.enName LIKE :character_name OR characters.ptName LIKE :character_name',
-              {
-                character_name: `%${searchText}%`
-              }
-            );
+          cards = await charactersRepository.find({
+            take: limit,
+            skip: offset
+          });
 
           break;
 
         case Category.Comics:
           const comicsRepository = MysqlDataSource.getRepository(Comic);
 
-          found = await comicsRepository
-            .createQueryBuilder('comics')
-            .where(
-              'comics.enTitle LIKE :comic_title OR comics.ptTitle LIKE :comic_title',
-              {
-                comic_title: `%${searchText}%`
-              }
-            );
+          cards = await comicsRepository.find({
+            take: limit,
+            skip: offset
+          });
 
           break;
 
         case Category.Series:
           const seriesRepository = MysqlDataSource.getRepository(Series);
 
-          found = await seriesRepository
-            .createQueryBuilder('series')
-            .where(
-              'series.enTitle LIKE :series_title OR series.ptTitle LIKE :series_title',
-              {
-                series_title: `%${searchText}%`
-              }
-            );
+          cards = await seriesRepository.find({
+            take: limit,
+            skip: offset
+          });
 
           break;
 
         case Category.Stories:
           const storiesRepository = MysqlDataSource.getRepository(Story);
 
-          found = await storiesRepository
-            .createQueryBuilder('stories')
-            .where(
-              'stories.enTitle LIKE :story_title OR stories.ptTitle LIKE :story_title',
-              {
-                story_title: `%${searchText}%`
-              }
-            );
+          cards = await storiesRepository.find({
+            take: limit,
+            skip: offset
+          });
 
           break;
         case Category.Events:
           const eventsRepository = MysqlDataSource.getRepository(Event);
 
-          found = await eventsRepository
-            .createQueryBuilder('events')
-            .where(
-              'events.enTitle LIKE :event_title OR events.ptTitle LIKE :event_title',
-              {
-                event_title: `%${searchText}%`
-              }
-            );
+          cards = await eventsRepository.find({
+            take: limit,
+            skip: offset
+          });
 
           break;
       }
-
-      const cards = await found.skip(offset).take(limit).getMany();
 
       if (cards.length === 0) {
         return res.status(404).send({
@@ -363,7 +328,167 @@ export class CharacterController {
         .status(200)
         .json({ date: new Date(), status: true, data: cards });
     } catch (error) {
-      console.log('Erro: ', error);
+      return res.status(500).send({
+        date: new Date(),
+        status: false,
+        data: 'Um erro interno ocorreu.'
+      });
+    }
+  }
+
+  /**
+   * @swagger
+   *
+   * /v1/favorite/{character_id}:
+   *   get:
+   *     summary: Favorita ou desfavorita um personagem especificado para o usuário corrente
+   *     description: Se o personagem não tiver sido favoritado pelo usuário antes, uma entrada de favorito dele é criada.
+   *                   Caso contrário, se o personagem já tiver sido favoritado anteriormente, sua entrada de favorito é removida.
+   *     security:
+   *       - BearerAuth: []
+   *     tags: [Characters]
+   *     parameters:
+   *       - in: path
+   *         name: character_id
+   *         required: true
+   *         schema:
+   *           type: integer
+   *           minimum: 1
+   *         description: o ID do personagem
+   *     responses:
+   *       '200':
+   *           description: 'Requisição bem sucedida.'
+   *           content:
+   *             application/json:
+   *               schema:
+   *                 type: object
+   *                 properties:
+   *                   date:
+   *                     type: object
+   *                   status:
+   *                     type: boolean
+   *                   data:
+   *                     type: string
+   *                     description: 'objeto json de retorno'
+   *               example:
+   *                 date: {}
+   *                 status: true
+   *                 data: 'O usuário 4 favoritou o personagem 1'
+   *       '404':
+   *           description: 'Requisição falhou.'
+   *           content:
+   *             application/json:
+   *               schema:
+   *                 type: object
+   *                 properties:
+   *                   date:
+   *                     type: object
+   *                   status:
+   *                     type: boolean
+   *                   data:
+   *                     type: string
+   *                     description: 'objeto json de retorno'
+   *               example:
+   *                 date: {}
+   *                 status: false
+   *                 data: "Personagem não encontrado."
+   *       '500':
+   *           description: 'Erro interno.'
+   *           content:
+   *             application/json:
+   *               schema:
+   *                 type: object
+   *                 properties:
+   *                   date:
+   *                     type: object
+   *                   status:
+   *                     type: boolean
+   *                   data:
+   *                     type: string
+   *                     description: 'objeto json de retorno'
+   *               example:
+   *                 date: {}
+   *                 status: false
+   *                 data: "Um erro interno ocorreu."
+   *
+   */
+  async favoriteCharacter(req: Request, res: Response) {
+    try {
+      const character_id: number = Number(req.params.character_id);
+      const user_id: number = req.body.user.id;
+
+      const userRepository = MysqlDataSource.getRepository(User);
+      const characterRepository = MysqlDataSource.getRepository(Character);
+      const userFavoritesRepository =
+        MysqlDataSource.getRepository(UserFavorites);
+
+      //procura para ver se a entrada de favorito já existe
+      const favoriteEntry = await userFavoritesRepository.findOne({
+        where: { user: { id: user_id }, character: { id: character_id } }
+      });
+
+      if (favoriteEntry) {
+        //remove dos favoritos
+        await MysqlDataSource.manager.remove(favoriteEntry);
+
+        return res.status(200).send({
+          date: new Date(),
+          status: true,
+          data:
+            'O usuário ' +
+            req.body.user.id +
+            ' desfavoritou o personagem ' +
+            character_id
+        });
+      } else {
+        //adiciona nos favoritos
+        const user: User = await userRepository.findOne({
+          where: {
+            id: user_id
+          }
+        });
+
+        if (!user) {
+          return res.status(404).send({
+            date: new Date(),
+            status: false,
+            data: 'Usuário não encontrado.'
+          });
+        }
+
+        //find no personagem
+        const character: Character = await characterRepository.findOne({
+          where: {
+            id: character_id
+          }
+        });
+
+        if (!character) {
+          return res.status(404).send({
+            date: new Date(),
+            status: false,
+            data: 'Personagem não encontrado.'
+          });
+        }
+
+        //cria nova entrada de favorito na tabela
+        const favoriteEntry = new UserFavorites();
+        favoriteEntry.user = user;
+        favoriteEntry.character = character;
+
+        await MysqlDataSource.manager.save(favoriteEntry);
+
+        return res.status(200).send({
+          date: new Date(),
+          status: true,
+          data:
+            'O usuário ' +
+            req.body.user.id +
+            ' favoritou o personagem ' +
+            character_id
+        });
+      }
+    } catch (error) {
       return res.status(500).send({
         date: new Date(),
         status: false,

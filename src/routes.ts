@@ -18,6 +18,12 @@ router.get(
   new CharacterController().getPage
 );
 
+router.get(
+  '/v1/favorite/:character_id',
+  authenticateToken,
+  new CharacterController().favoriteCharacter
+);
+
 //TODO: retornar informações detalhadas sobre o personagem selecionado
 router.get(
   '/v1/:category/:character_id',
