@@ -473,22 +473,171 @@ export class CharacterController {
   /**
    * @swagger
    *
-   * /v1/favorite/{character_id}:
+   * /v1/favorites:
    *   get:
+   *
+   *     summary: Requisita página de favoritos do usuário
+   *     description: Retorna uma quantidade de 9 cards por página
+   *     security:
+   *       - BearerAuth: []
+   *     tags: [Characters]
+   *     parameters:
+   *       - in: query
+   *         name: page
+   *         required: false
+   *         schema:
+   *           type: integer
+   *           minimum: 1
+   *         description: Página desejada
+   *       - in: query
+   *         name: search
+   *         required: false
+   *         schema:
+   *           type: string
+   *         description: Texto de busca especificado
+   *     responses:
+   *       '200':
+   *           description: 'Requisição bem sucedida.'
+   *           content:
+   *             application/json:
+   *               schema:
+   *                 type: object
+   *                 properties:
+   *                   date:
+   *                     type: object
+   *                   status:
+   *                     type: boolean
+   *                   data:
+   *                     type: string
+   *                     description: 'objeto json de retorno'
+   *               example:
+   *                 date: {}
+   *                 status: true
+   *                 data: <ARRAY DE OBJETOS JSON>
+   *       '404':
+   *           description: 'Requisição falhou.'
+   *           content:
+   *             application/json:
+   *               schema:
+   *                 type: object
+   *                 properties:
+   *                   date:
+   *                     type: object
+   *                   status:
+   *                     type: boolean
+   *                   data:
+   *                     type: string
+   *                     description: 'objeto json de retorno'
+   *               example:
+   *                 date: {}
+   *                 status: false
+   *                 data: "Página não encontrada."
+   *       '500':
+   *           description: 'Erro interno.'
+   *           content:
+   *             application/json:
+   *               schema:
+   *                 type: object
+   *                 properties:
+   *                   date:
+   *                     type: object
+   *                   status:
+   *                     type: boolean
+   *                   data:
+   *                     type: string
+   *                     description: 'objeto json de retorno'
+   *               example:
+   *                 date: {}
+   *                 status: false
+   *                 data: "Um erro interno ocorreu."
+   *
+   */
+  async getFavoritesPage(req: Request, res: Response) {
+    try {
+      const pageNumber: number = Number(req.query.page) || 1;
+      const searchText: string = (req.query.search as string) || '';
+
+      const offset = (pageNumber - 1) * 9;
+      const limit = 9;
+
+      const charactersRepository = MysqlDataSource.getRepository(Character);
+
+      const user_id: number = req.body.user.id;
+
+      //faz join de user_favorites e characters e pega apenas os personagens do usuário atual
+      const found = MysqlDataSource.getRepository(UserFavorites)
+        .createQueryBuilder('userFavorites')
+        .innerJoinAndSelect('userFavorites.character', 'character')
+        .innerJoinAndSelect('userFavorites.user', 'user')
+        .where(
+          '(character.enName LIKE :character_name OR character.ptName LIKE :character_name) AND user.id = :user_id',
+          {
+            character_name: `%${searchText}%`,
+            user_id: user_id
+          }
+        )
+        .select([
+          'character.id AS id',
+          'character.idMarvel AS idMarvel',
+          'character.enName AS enName',
+          'character.ptName AS ptName',
+          'character.description AS description',
+          'character.thumb AS thumb',
+          'character.isTranslated AS isTranslated',
+          'character.createdAt AS createdAt',
+          'character.lastUpdate AS lastUpdate'
+        ]);
+
+      const cards = await found.skip(offset).take(limit).getRawMany();
+
+      if (cards.length === 0) {
+        return res.status(404).send({
+          date: new Date(),
+          status: false,
+          data: 'Página não encontrada.'
+        });
+      }
+
+      return res
+        .status(200)
+        .json({ date: new Date(), status: true, data: cards });
+    } catch (error) {
+      console.log('Erro: ', error);
+      return res.status(500).send({
+        date: new Date(),
+        status: false,
+        data: 'Um erro interno ocorreu.'
+      });
+    }
+  }
+
+  /**
+   * @swagger
+   *
+   * /v1/favorite:
+   *   post:
    *     summary: Favorita ou desfavorita um personagem especificado para o usuário corrente
    *     description: Se o personagem não tiver sido favoritado pelo usuário antes, uma entrada de favorito dele é criada.
    *                   Caso contrário, se o personagem já tiver sido favoritado anteriormente, sua entrada de favorito é removida.
    *     security:
    *       - BearerAuth: []
    *     tags: [Characters]
-   *     parameters:
-   *       - in: path
-   *         name: character_id
-   *         required: true
-   *         schema:
-   *           type: integer
-   *           minimum: 1
-   *         description: o ID do personagem
+   *     requestBody:
+   *       description: Envio do ID do personagem a ser favoritado/desfavoritado
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             type: object
+   *             properties:
+   *               character_id:
+   *                 type: number
+   *             example:
+   *               character_id: 1
+   *     consumes:
+   *       - application/json
+   *     produces:
+   *       - application/json
    *     responses:
    *       '200':
    *           description: 'Requisição bem sucedida.'
@@ -548,7 +697,7 @@ export class CharacterController {
    */
   async favoriteCharacter(req: Request, res: Response) {
     try {
-      const character_id: number = Number(req.params.character_id);
+      const character_id: number = Number(req.body.character_id);
       const user_id: number = req.body.user.id;
 
       const userRepository = MysqlDataSource.getRepository(User);

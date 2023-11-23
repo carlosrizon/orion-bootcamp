@@ -1,5 +1,4 @@
 import { Entity, PrimaryGeneratedColumn, JoinColumn, ManyToOne } from 'typeorm';
-
 import Character from './Character';
 import User from './User';
 
