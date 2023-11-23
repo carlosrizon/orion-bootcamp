@@ -1,5 +1,6 @@
 /**
- * Interface de categorias Marvel: Character, Series, Comic, Event e Story
+ * @interface
+ * Modelo de objeto das categorias Marvel: Character, Series, Comic, Event e Story
  */
 export default interface CategoryModel {
   /** Número de ID atribuído pela Marvel */

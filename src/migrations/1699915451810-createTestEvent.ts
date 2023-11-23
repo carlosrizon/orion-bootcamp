@@ -1,6 +1,9 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 import Event from '../entity/Event';
 
+/**
+ * Classe que implementa operação de adição de eventos-teste ao banco de dados
+ */
 export class CreateTestEvent1699915451810 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.manager

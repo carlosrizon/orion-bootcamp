@@ -3,8 +3,10 @@ import {
   Column,
   PrimaryGeneratedColumn,
   CreateDateColumn,
-  UpdateDateColumn
+  UpdateDateColumn,
+  OneToMany
 } from 'typeorm';
+import Survey from './Survey';
 
 /**
  * Entidade com informações relacionadas a usuários da aplicação
@@ -31,6 +33,9 @@ export default class User {
 
   @Column({ type: 'varchar', length: 100, select: false })
   password: string;
+
+  @OneToMany(() => Survey, (survey) => survey.user)
+  surveys: Array<Survey>;
 
   @CreateDateColumn()
   createdAt: Date;

@@ -1,6 +1,9 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 import Comic from '../entity/Comic';
 
+/**
+ * Classe que implementa operação de adição de quadrinhos-teste ao banco de dados
+ */
 export class CreateTestComic1699915059110 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.manager

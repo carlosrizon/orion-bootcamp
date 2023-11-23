@@ -13,7 +13,7 @@ export class UserController {
    *   post:
    *
    *     summary: Adiciona novo usuário ao banco de dados
-   *     tags: [signUp]
+   *     tags: [SignUp]
    *     requestBody:
    *       content:
    *         application/json:
@@ -56,7 +56,7 @@ export class UserController {
    *               properties:
    *                 date:
    *                   type: date
-   *                   description: Date de envio da resposta à requisição
+   *                   description: Data de envio da resposta à requisição
    *                 status:
    *                   type: boolean
    *                   description: Status da criação do usuário

@@ -1,6 +1,9 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 import Story from '../entity/Story';
 
+/**
+ * Classe que implementa operação de adição de histórias-teste ao banco de dados
+ */
 export class CreateTestStory1699915502194 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.manager

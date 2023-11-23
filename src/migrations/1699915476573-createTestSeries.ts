@@ -1,6 +1,9 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 import Series from '../entity/Series';
 
+/**
+ * Classe que implementa operação de adição de séries-teste ao banco de dados
+ */
 export class CreateTestSeries1699915476573 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.manager

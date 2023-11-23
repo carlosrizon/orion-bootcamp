@@ -4,6 +4,8 @@ import { UserController } from './controller/UserController';
 import { AuthController } from './controller/AuthController';
 import { authenticateToken } from './middleware/AuthMiddleware';
 import { CharacterController } from './controller/CharacterController';
+import SurveyController from './controller/SurveyController';
+import SurveyValidator from './validator/SurveyValidator';
 import { RecoveryController } from './controller/RecoveryController';
 
 const router = Router();
@@ -27,7 +29,13 @@ router.post('/v1/recovery', new RecoveryController().validateUserEmail);
 router.post('/v1/changepassword', new RecoveryController().changePassword);
 
 router.get(
-  '/v1/favorite/:character_id',
+  '/v1/favorites',
+  authenticateToken,
+  new CharacterController().getFavoritesPage
+);
+
+router.post(
+  '/v1/favorite',
   authenticateToken,
   new CharacterController().favoriteCharacter
 );
@@ -36,6 +44,14 @@ router.get(
   '/v1/:category',
   authenticateToken,
   new CharacterController().getPage
+);
+
+// endpoint para verificação de elegibilidade de usuário para pesquisa
+router.get(
+  '/v1/survey/eligibility/:user_id',
+  authenticateToken,
+  new SurveyValidator().verifyEligibility,
+  new SurveyController().eligible
 );
 
 //TODO: retornar informações detalhadas sobre o personagem selecionado

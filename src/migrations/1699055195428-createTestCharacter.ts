@@ -1,6 +1,9 @@
 import Character from '../entity/Character';
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
+/**
+ * Classe que implementa operação de adição de personagens-teste ao banco de dados
+ */
 export class CreateTestCharacter1699055195428 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.manager
