@@ -16,6 +16,7 @@
     "migration:create": "typeorm-ts-node-commonjs migration:create ./src/migrations/createTestStory",
     "migration:revert": "typeorm-ts-node-commonjs migration:revert -d ./src/config/database.ts",
     "migration:show": "typeorm-ts-node-commonjs migration:show -d ./src/config/database.ts",
+    "bannedwords:copy": "docker cp src/validator/bannedWords.txt orion-api:/app/src/validator/bannedWords.txt",
     "docs": "typedoc"
   },
   "devDependencies": {

@@ -54,6 +54,15 @@ router.get(
   new SurveyController().eligible
 );
 
+// endpoint para envio de dados para registro de pesquisa de satisfação do usuário
+router.post(
+  '/v1/survey/user_answer',
+  authenticateToken,
+  new SurveyValidator().verifyEligibility,
+  new SurveyValidator().verifyAnswer,
+  new SurveyController().create
+);
+
 //TODO: retornar informações detalhadas sobre o personagem selecionado
 router.get(
   '/v1/:category/:category_id',

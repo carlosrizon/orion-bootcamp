@@ -57,7 +57,7 @@ export const validationField = [
     .withMessage('Informe um e-mail válido')
     .custom(async (email: string) => {
       const repository = new UserRepository();
-      const existingUser = await repository.findOneByEmail(email);
+      const existingUser = await repository.findUserByEmailOrID(email, 'email');
       if (existingUser) {
         return Promise.reject('E-mail já cadastrado');
       }

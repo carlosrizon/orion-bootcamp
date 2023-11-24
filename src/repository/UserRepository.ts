@@ -3,7 +3,12 @@ import * as bcrypt from 'bcrypt';
 import User from '../entity/User';
 
 export class UserRepository {
-  private repository = MysqlDataSource.getRepository(User);
+  private userRepository = MysqlDataSource.getRepository(User);
+
+  constructor() {
+    this.userRepository = MysqlDataSource.getRepository(User);
+  }
+
   private _saltRounds = (): number => 10;
 
   async createAndSave(userData): Promise<User> {
@@ -12,7 +17,7 @@ export class UserRepository {
       this._saltRounds()
     );
 
-    const newUser: User = await this.repository.manager.save(User, {
+    const newUser: User = await this.userRepository.manager.save(User, {
       firstName: userData.firstName,
       lastName: userData.lastName,
       gender: userData.gender,
@@ -24,9 +29,12 @@ export class UserRepository {
     return newUser;
   }
 
-  async findOneByEmail(userEmail: string): Promise<User> {
-    const user = await this.repository.findOne({
-      where: { email: userEmail }
+  async findUserByEmailOrID(
+    value: string | number,
+    property: string
+  ): Promise<User> {
+    const user = await this.userRepository.findOne({
+      where: { [property]: value }
     });
     return user;
   }
