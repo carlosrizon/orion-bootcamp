@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { validationField, Validator } from './validator/userValidator';
+import UserValidator from './validator/userValidator';
 import { UserController } from './controller/UserController';
 import { AuthController } from './controller/AuthController';
 import { authenticateToken } from './middleware/AuthMiddleware';
@@ -17,10 +17,10 @@ router.all('/v1/dashboard', authenticateToken, (req, res) => {
 
 router.post('/v1/login', new AuthController().login);
 
+// endpoint para cadastro de novos usuários
 router.post(
   '/v1/signup',
-  validationField,
-  Validator,
+  new UserValidator().verify,
   new UserController().create
 );
 
