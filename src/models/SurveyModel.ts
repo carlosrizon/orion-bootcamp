@@ -23,11 +23,4 @@ export default interface SurveyModel {
    * Valor padrão: false;
    */
   answered?: boolean;
-
-  /**
-   * Número de ID do usuário que respondeu à pesquisa.
-   *
-   * Atributo not null.
-   */
-  userId: number;
 }

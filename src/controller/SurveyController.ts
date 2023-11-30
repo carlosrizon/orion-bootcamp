@@ -1,8 +1,6 @@
 import { Request, Response } from 'express';
 import SurveyRepository from '../repository/SurveyRepository';
-import { UserRepository } from '../repository/UserRepository';
 import Survey from '../entity/Survey';
-import User from '../entity/User';
 
 /**
  * Classe com operações relacionadas à criação e manipulação de pesquisas de usuários
@@ -11,24 +9,15 @@ export default class SurveyController {
   /**
    * @swagger
    *
-   * /v1/survey/eligibility/{user_id}:
+   * /v1/survey/user_eligibility:
    *   get:
    *
    *     summary: requisita informações sobre elegibilidade de usuário para realização de pesquisa de satisfação
    *     description: retorna objeto com parâmetro booleano indicativo da elegibilidade do usuário requisitado para a pesquisa
    *     tags: [Survey]
-   *     parameters:
-   *       - in: path
-   *         name: user_id
-   *         required: true
-   *         schema:
-   *           type: integer
-   *           minimum: 1
-   *           maximum: 1
-   *         description: ID do usuário
    *     responses:
    *       '200':
-   *         description: requisição executada com sucesso
+   *         description: requisição executada com sucesso. Usuário elegível à realização da pesquisa.
    *         content:
    *           application/json:
    *             schema:
@@ -51,27 +40,6 @@ export default class SurveyController {
    *                 status: true
    *                 data:
    *                   eligible: true
-   *       '400':
-   *         description: erro interno do servidor. Não foi verificar elegibilidade do usuário para pesquisa
-   *         content:
-   *           application/json:
-   *             schema:
-   *               type: object
-   *               properties:
-   *                 date:
-   *                   type: date
-   *                   description: Data de envio da resposta à requisição
-   *                 status:
-   *                   type: boolean
-   *                   description: status do processamento da requisição
-   *                 data:
-   *                   type: object
-   *                   description: mensagem de erro
-   *                   data: Número de ID inválido
-   *               example:
-   *                 date: 2023-10-28T19:59:19.751Z
-   *                 status: false
-   *                 data: Número de ID inválido
    *       '422':
    *         description: servidor compreende a requisição, mas não pode processar dados
    *         content:
@@ -155,13 +123,9 @@ export default class SurveyController {
    *                 minimum: 1
    *                 maximum: 1
    *                 description: nota do usuário para sua experiência na plataforma
-   *               userId:
-   *                 type: integer
-   *                 description: número do ID do usuário
    *             example:
    *               comment: Melhor plataforma do Brasil!
    *               grade: 5
-   *               userId: 1
    *     responses:
    *       '201':
    *         description: requisição executada com sucesso. Pesquisa salva no banco de dados.
@@ -188,6 +152,9 @@ export default class SurveyController {
    *                     answered:
    *                       type: boolean
    *                       description: indicação de status da pesquisa, se respondida ou não
+   *                     user:
+   *                       type: string
+   *                       description: número do ID do usuário
    *                     id:
    *                       type: integer
    *                       description: número do ID da pesquisa criada
@@ -195,9 +162,6 @@ export default class SurveyController {
    *                       type: string
    *                       format: date
    *                       description: data de criação da pesquisa no banco de dados
-   *                     userId:
-   *                       type: string
-   *                       description: número do ID do usuário
    *               example:
    *                 date: 2023-10-28T19:32:46.116Z
    *                 status: true
@@ -205,9 +169,9 @@ export default class SurveyController {
    *                   comment: Melhor plataforma do Brasil!
    *                   grade: 5
    *                   answered: true
+   *                   user: 1
    *                   id: 100
    *                   createdAt: 2023-11-23T15:10:20.341Z
-   *                   userId: 1
    *       '400':
    *         description: um ou mais dados fornecidos na requisição não atendem aos pré-requisitos
    *         content:
@@ -305,30 +269,17 @@ export default class SurveyController {
   async create(req?: Request, res?: Response): Promise<void> {
     try {
       const surveyRepository = new SurveyRepository();
-      const userRepository = new UserRepository();
 
-      const surveyData = req.body;
-      const user: User = await userRepository.findUserByEmailOrID(
-        surveyData.userId,
-        'id'
-      );
+      const [user, others] = [req.body.user, { ...req.body }];
+      delete others.user;
 
       const survey: Survey = await surveyRepository.createAndSave({
-        ...surveyData,
-        user: user
+        ...others,
+        user: user.id
       });
 
-      const surveyCopy = survey;
-      delete surveyCopy.user;
-      const response = { ...surveyCopy, userId: user.id };
-
-      res.status(201).json({ date: new Date(), status: true, data: response });
+      res.status(201).json({ date: new Date(), status: true, data: survey });
     } catch (error) {
-      console.error(
-        `Não foi possível inserir uma nova pesquisa para o usuário ${req.body.userId}`,
-        error
-      );
-
       res.status(500).json({
         date: new Date(),
         status: false,
