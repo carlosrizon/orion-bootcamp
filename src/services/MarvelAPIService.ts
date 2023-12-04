@@ -33,4 +33,32 @@ export default class MarvelAPIService {
       return Promise.reject('Erro interno do servidor');
     }
   }
+
+  async get1Elements(categoryAlias): Promise<unknown[]> {
+    try {
+      let dataArray: Array<unknown> = [];
+      const categoryData: Array<unknown> = [];
+      const paramsDefiner = new MarvelParamsDefiner();
+      const timeStamp = paramsDefiner.getTimestamp();
+      const offset = paramsDefiner.offsetter();
+      const response = await axios.get(
+        `${paramsDefiner.baseURL()}/${categoryAlias}`,
+        {
+          params: {
+            offset: offset.next().value,
+            limit: 1,
+            ts: timeStamp,
+            apikey: paramsDefiner.apikey(),
+            hash: paramsDefiner.hashGenerator(timeStamp)
+          }
+        }
+      );
+      dataArray = await response.data.data.results;
+      categoryData.push(...dataArray);
+      return categoryData;
+    } catch (error) {
+      console.error(error);
+      return Promise.reject('Erro interno do servidor');
+    }
+  }
 }

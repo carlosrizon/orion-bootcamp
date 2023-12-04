@@ -16,10 +16,13 @@ import Survey from './entity/Survey';
 import { categoriesArray } from './library/categoriesArray';
 import { subDays, endOfDay } from 'date-fns';
 import { DeepPartial } from 'typeorm';
+import CreateRelationsCharacterCards from './services/CreateRelationsCharacterCards';
 
 MysqlDataSource.initialize()
   .then(async () => {
     console.log('Database initialized!');
+
+    CreateRelationsCharacterCards.createRelations();
   })
   .catch((err) => {
     console.error('Database Error: ', err);
@@ -136,6 +139,9 @@ cron.schedule('0 8 * * *', async function updateCategoriesDatabases() {
         className,
         classAlias
       );
+
+      //cria as relações dos personagens/quadrinhos aqui, após adicionar tudo no banco
+      //usar dataArray que já foi pego
     } catch (error) {
       console.log(
         `falha na execução da atualização do banco de dados de ${classAlias}
