@@ -52,5 +52,6 @@ export default interface CategoryModel {
    */
   isTranslated: boolean;
 
-  comics;
+  comics?;
+  id?;
 }
