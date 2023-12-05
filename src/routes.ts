@@ -11,9 +11,17 @@ import { RecoveryController } from './controller/RecoveryController';
 import { CommentController } from './controller/CommentController';
 import { ArtistsController } from './controller/ArtistsController';
 import { validateAmountPositiveInteger } from './validator/getShowcasePostersValidator';
-import { validateCardDetailsParams } from './validator/getCardDetailsValidator';
-import { validateGetPageParams } from './validator/getPageValidator';
-import { validateGetFavoritesPageParams } from './validator/getFavoritesPageValidator';
+import {
+  validateCardDetailsParams,
+  validateGetFavoritesPageParams,
+  validateGetPageParams,
+  validatePostFavoriteParams
+} from './validator/characterEndpointsValidators';
+import {
+  validateDeleteComment,
+  validateGetComment,
+  validatePostComment
+} from './validator/commentEndpointsValidators';
 
 const router = Router();
 
@@ -45,6 +53,7 @@ router.get(
 router.post(
   '/v1/favorite',
   authenticateToken,
+  validatePostFavoriteParams,
   new CharacterController().favoriteCharacter
 );
 
@@ -65,18 +74,21 @@ router.get(
 router.post(
   '/v1/comments/:category/:categoryId',
   authenticateToken,
+  validatePostComment,
   new CommentController().createComment
 );
 
 router.get(
   '/v1/comments/:category/:categoryId',
   authenticateToken,
+  validateGetComment,
   new CommentController().getComments
 );
 
 router.delete(
   '/v1/comments/:comment_id',
   authenticateToken,
+  validateDeleteComment,
   new CommentController().deleteComment
 );
 
