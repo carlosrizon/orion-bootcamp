@@ -10,6 +10,10 @@ import SurveyValidator from './validator/SurveyValidator';
 import { RecoveryController } from './controller/RecoveryController';
 import { CommentController } from './controller/CommentController';
 import { ArtistsController } from './controller/ArtistsController';
+import { validateAmountPositiveInteger } from './validator/getShowcasePostersValidator';
+import { validateCardDetailsParams } from './validator/getCardDetailsValidator';
+import { validateGetPageParams } from './validator/getPageValidator';
+import { validateGetFavoritesPageParams } from './validator/getFavoritesPageValidator';
 
 const router = Router();
 
@@ -31,10 +35,10 @@ router.get('/v1/check', new AuthController().confirmRegistration);
 router.post('/v1/recovery', new RecoveryController().validateUserEmail);
 router.post('/v1/changepassword', new RecoveryController().changePassword);
 
-//POST?
 router.get(
   '/v1/favorites',
   authenticateToken,
+  validateGetFavoritesPageParams,
   new CharacterController().getFavoritesPage
 );
 
@@ -47,19 +51,21 @@ router.post(
 router.get(
   '/v1/posters',
   authenticateToken,
+  validateAmountPositiveInteger,
   new ArtistsController().getShowcasePosters
 );
 
 router.get(
   '/v1/:category',
   authenticateToken,
+  validateGetPageParams,
   new CharacterController().getPage
 );
 
 router.post(
   '/v1/comments/:category/:categoryId',
   authenticateToken,
-  new CommentsController().createComment
+  new CommentController().createComment
 );
 
 router.get(
@@ -68,13 +74,11 @@ router.get(
   new CommentController().getComments
 );
 
-
 router.delete(
   '/v1/comments/:comment_id',
   authenticateToken,
   new CommentController().deleteComment
 );
-
 
 // endpoint para verificação de elegibilidade de usuário para pesquisa
 router.get(
@@ -94,6 +98,7 @@ router.post(
 router.get(
   '/v1/:category/:category_id',
   authenticateToken,
+  validateCardDetailsParams,
   countCardClick,
   new CharacterController().getCardDetails
 );
