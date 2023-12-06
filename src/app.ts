@@ -17,13 +17,14 @@ import { categoriesArray } from './library/categoriesArray';
 import { subDays, endOfDay } from 'date-fns';
 import { DeepPartial } from 'typeorm';
 import CreateRelationsCharacterCards from './services/CreateRelationsCharacterCards';
-import GetArtistsSheetToDatabase from './services/GetArtistsSheetToDatabase';
+import { CharacterComics } from './entity/CharacterComics';
+import Comic from './entity/Comic';
+import Character from './entity/Character';
+//import GetArtistsSheetToDatabase from './services/GetArtistsSheetToDatabase';
 
 MysqlDataSource.initialize()
   .then(async () => {
     console.log('Database initialized!');
-
-    CreateRelationsCharacterCards.createRelations();
   })
   .catch((err) => {
     console.error('Database Error: ', err);
@@ -31,12 +32,12 @@ MysqlDataSource.initialize()
 
 const app = express();
 
-const updateArtistsTable = new GetArtistsSheetToDatabase();
-updateArtistsTable.getSheetToDatabase();
+// const updateArtistsTable = new GetArtistsSheetToDatabase();
+// updateArtistsTable.getSheetToDatabase();
 
-cron.schedule('0 0 * * *', () => {
-  updateArtistsTable.getSheetToDatabase();
-});
+// cron.schedule('0 0 * * *', () => {
+//   updateArtistsTable.getSheetToDatabase();
+// });
 
 cron.schedule('0 6 * * *', async function updateSurveyDatabase() {
   console.log('atualizando banco de dados de pesquisas 1 vez por dia');
@@ -125,40 +126,59 @@ app.use(express.json());
 app.use(cors({ origin: true }));
 app.use(routes);
 
-cron.schedule('0 8 * * *', async function updateCategoriesDatabases() {
-  console.log('atualizando bancos de dados de categorias uma vez por dia');
+async function updateCategoriesDatabases() {
+  try {
+    console.log('atualizando bancos de dados de categorias uma vez por dia');
 
-  const categories = categoriesArray();
+    const categories = categoriesArray();
 
-  for (const category of categories) {
-    const [className, classAlias] = category;
+    const n: number = 2;
 
-    try {
+    for (const category of categories) {
+      const [className, classAlias] = category;
+
       const categoryHandler = new MarvelAPIService();
-      const dataArray = await categoryHandler.getElements(classAlias);
 
       const formatter = new MarvelDataFormatter();
-      const formattedArray: Array<CategoryModel> =
-        await formatter.formatData(dataArray);
 
       const categoryRepository = new CategoryRepository();
-      await categoryRepository.updateOrSave(
-        formattedArray,
-        className,
-        classAlias
-      );
+
+      for (let i = 0; i < n; i++) {
+        console.log(`Iteration ${i + 1}`);
+        const dataArray = await categoryHandler.getTestElements(classAlias, i);
+
+        if (dataArray.length == 0) {
+          break;
+        }
+
+        //so pra categoria characters
+        if (classAlias == 'characters') {
+          CreateRelationsCharacterCards.createRelations(dataArray);
+        }
+
+        const formattedArray: Array<CategoryModel> =
+          await formatter.formatData(dataArray);
+
+        await categoryRepository.updateOrSave(
+          formattedArray,
+          className,
+          classAlias
+        );
+      }
 
       //cria as relações dos personagens/quadrinhos aqui, após adicionar tudo no banco
       //usar dataArray que já foi pego
-    } catch (error) {
-      console.log(
-        `falha na execução da atualização do banco de dados de ${classAlias}
-        executando tarefa novamente em 1 hora`,
-        error
-      );
     }
+  } catch (error) {
+    console.log(
+      `falha na execução da atualização do banco de dados
+    executando tarefa novamente em 1 hora`,
+      error
+    );
   }
-});
+}
+
+updateCategoriesDatabases();
 
 const swaggerSpec = swaggerJSDoc(swaggerConfig);
 

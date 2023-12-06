@@ -6,12 +6,13 @@ import Character from '../entity/Character';
 
 // Array de arrays com instâncias de entidades de categorias e respectivas alias strings
 const categoriesClassAndAlias = [
-  [Character, 'characters'],
   [Comic, 'comics'],
   [Series, 'series'],
   [Story, 'stories'],
-  [Event, 'events']
+  [Event, 'events'],
+  [Character, 'characters']
 ];
+//const categoriesClassAndAlias = [[Character, 'characters']];
 
 /**
  * Função de acesso à constante categoriesClassAndAlias

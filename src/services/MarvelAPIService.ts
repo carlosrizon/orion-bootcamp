@@ -34,27 +34,36 @@ export default class MarvelAPIService {
     }
   }
 
-  async get1Elements(categoryAlias): Promise<unknown[]> {
+  async getTestElements(categoryAlias, i: number): Promise<unknown[]> {
     try {
       let dataArray: Array<unknown> = [];
       const categoryData: Array<unknown> = [];
       const paramsDefiner = new MarvelParamsDefiner();
       const timeStamp = paramsDefiner.getTimestamp();
-      const offset = paramsDefiner.offsetter();
-      const response = await axios.get(
-        `${paramsDefiner.baseURL()}/${categoryAlias}`,
-        {
-          params: {
-            offset: offset.next().value,
-            limit: 1,
-            ts: timeStamp,
-            apikey: paramsDefiner.apikey(),
-            hash: paramsDefiner.hashGenerator(timeStamp)
+      let offset = i * 200;
+
+      for (let i = 0; i < 2; i++) {
+        const response = await axios.get(
+          `${paramsDefiner.baseURL()}/${categoryAlias}`,
+          {
+            params: {
+              offset: offset,
+              limit: paramsDefiner.maxMarvelAPILimit(),
+              ts: timeStamp,
+              apikey: paramsDefiner.apikey(),
+              hash: paramsDefiner.hashGenerator(timeStamp)
+            }
           }
+        );
+        dataArray = await response.data.data.results;
+        categoryData.push(...dataArray);
+        offset += dataArray.length;
+        if (dataArray.length == 0) {
+          break;
         }
-      );
-      dataArray = await response.data.data.results;
-      categoryData.push(...dataArray);
+      }
+
+      console.log('retornando ', categoryData.length, ' objetos no dataArray');
       return categoryData;
     } catch (error) {
       console.error(error);
