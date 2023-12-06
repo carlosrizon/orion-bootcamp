@@ -29,6 +29,9 @@ export default class Series {
   @Column({ type: 'varchar', length: 256, default: null })
   thumb: string;
 
+  @Column({ type: 'varchar', length: 256, default: null })
+  link: string;
+
   @Column({ default: false })
   isTranslated: boolean;
 
