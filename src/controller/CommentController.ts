@@ -255,6 +255,8 @@ export class CommentController {
       //adicionar parametro userComment nos objetos comments
       const commentsWithUserComment = comments.map((comment) => ({
         id: comment.id,
+        userName: comment.user.firstName,
+        userLastName: comment.user.lastName,
         comment: comment.comment,
         createdAt: comment.createdAt,
         categoryId: comment.categoryId,
