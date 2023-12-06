@@ -33,8 +33,8 @@ export class AuthController {
    *               rememberMe:
    *                 type: boolean
    *             example:
-   *               email: teste@teste.com
-   *               password: teste123
+   *               email: betaorionisorion@gmail.com
+   *               password: senha@123
    *               rememberMe: true
    *     consumes:
    *       - application/json

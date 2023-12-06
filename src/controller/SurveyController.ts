@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import SurveyRepository from '../repository/SurveyRepository';
+import { endOfDay, subDays } from 'date-fns';
 import Survey from '../entity/Survey';
 
 /**
@@ -14,10 +15,12 @@ export default class SurveyController {
    *
    *     summary: requisita informações sobre elegibilidade de usuário para realização de pesquisa de satisfação
    *     description: retorna objeto com parâmetro booleano indicativo da elegibilidade do usuário requisitado para a pesquisa
+   *     security:
+   *       - BearerAuth: []
    *     tags: [Survey]
    *     responses:
    *       '200':
-   *         description: requisição executada com sucesso. Usuário elegível à realização da pesquisa.
+   *         description: requisição executada com sucesso. Status da elegibilidade do usuário à pesquisa foi retornado com sucesso.
    *         content:
    *           application/json:
    *             schema:
@@ -28,7 +31,7 @@ export default class SurveyController {
    *                   description: data de envio da resposta à requisição
    *                 status:
    *                   type: boolean
-   *                   description: status da elegibilidade do usuário
+   *                   description: status do processamento da requiisção
    *                 data:
    *                   type: object
    *                   properties:
@@ -38,39 +41,6 @@ export default class SurveyController {
    *               example:
    *                 date: 2023-10-28T19:32:46.116Z
    *                 status: true
-   *                 data:
-   *                   eligible: true
-   *       '422':
-   *         description: servidor compreende a requisição, mas não pode processar dados
-   *         content:
-   *           application/json:
-   *             schema:
-   *               type: object
-   *               properties:
-   *                 date:
-   *                   type: date
-   *                   description: data de envio da resposta à requisição
-   *                 status:
-   *                   type: boolean
-   *                   description: Status da elegibilidade para a pesquisa
-   *                 data:
-   *                   type: object
-   *                   properties:
-   *                     date:
-   *                       type: date
-   *                       description: data de envio da resposta à requisição
-   *                     status:
-   *                       type: boolean
-   *                       description: status da elegibilidade do usuário
-   *                     data:
-   *                       type: object
-   *                       properties:
-   *                         eligible:
-   *                           type: boolean
-   *                           description: indicação da elegibilidade do usuário para a realização da pesquisa
-   *               example:
-   *                 date: 2023-10-28T19:32:46.116Z
-   *                 status: false
    *                 data:
    *                   eligible: false
    *       '500':
@@ -95,10 +65,41 @@ export default class SurveyController {
    *                 status: false
    *                 data: Erro interno do servidor
    */
-  async eligible(req?: Request, res?: Response): Promise<void> {
-    res
-      .status(200)
-      .json({ date: new Date(), status: true, data: { eligible: true } });
+  async verifyEligibility(req?: Request, res?: Response) {
+    const userId: number = req.body.user.id;
+    const surveyRepository = new SurveyRepository();
+
+    /**
+     * Aptidão para a pesquisa:
+     * 15 dias após a data de criação (para 1º pesquisa) OU 15 dias após a data de realização da última pesquisa
+     */
+    try {
+      const userLastSurveyDates =
+        await surveyRepository.getUserSurveyDatesByID(userId);
+      const usageStartRangeTime: Date = endOfDay(subDays(new Date(), 15));
+
+      if (
+        userLastSurveyDates.userCreationDate > usageStartRangeTime ||
+        userLastSurveyDates.latestSurvey > usageStartRangeTime
+      ) {
+        return res.status(200).json({
+          date: new Date(),
+          status: true,
+          data: { eligible: false }
+        });
+      } else {
+        res
+          .status(200)
+          .json({ date: new Date(), status: true, data: { eligible: true } });
+      }
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({
+        date: new Date(),
+        status: false,
+        data: 'erro interno do servidor'
+      });
+    }
   }
 
   /**
@@ -108,6 +109,8 @@ export default class SurveyController {
    *   post:
    *
    *     summary: requisita processamento de dados relacionadas à realização da pesquisa de satisfação do suário
+   *     security:
+   *       - BearerAuth: []
    *     tags: [Survey]
    *     requestBody:
    *       content:
@@ -213,7 +216,7 @@ export default class SurveyController {
    *                   path: comment
    *                   location: body
    *       '422':
-   *         description: servidor compreende a requisição, mas não pode processar dados
+   *         description: servidor compreende a requisição, mas não pode processar dados, usuário inelegível à relaização da pesquisa.
    *         content:
    *           application/json:
    *             schema:
@@ -233,13 +236,13 @@ export default class SurveyController {
    *                       description: data de envio da resposta à requisição
    *                     status:
    *                       type: boolean
-   *                       description: status da elegibilidade do usuário
+   *                       description: status do processamento da requisição
    *                     data:
    *                       type: object
    *                       properties:
    *                         eligible:
    *                           type: boolean
-   *                           description: indicação da elegibilidade do usuário para a realização da pesquisa
+   *                           description: indicação da inegibilidade do usuário para a realização da pesquisa
    *               example:
    *                 date: 2023-10-28T19:32:46.116Z
    *                 status: false
@@ -268,7 +271,7 @@ export default class SurveyController {
    */
   async create(req?: Request, res?: Response): Promise<void> {
     try {
-      const surveyRepository = new SurveyRepository();
+      const surveyRepository: SurveyRepository = new SurveyRepository();
 
       const [user, others] = [req.body.user, { ...req.body }];
       delete others.user;

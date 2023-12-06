@@ -257,7 +257,7 @@ export class CharacterController {
           found = await charactersRepository
             .createQueryBuilder('characters')
             .where(
-              'characters.enName LIKE :character_name OR characters.ptName LIKE :character_name',
+              'characters.enName LIKE :character_name OR characters.ptName LIKE :character_name OR characters.description LIKE :character_name',
               {
                 character_name: `%${searchText}%`
               }
@@ -271,7 +271,7 @@ export class CharacterController {
           found = await comicsRepository
             .createQueryBuilder('comics')
             .where(
-              'comics.enTitle LIKE :comic_title OR comics.ptTitle LIKE :comic_title',
+              'comics.enTitle LIKE :comic_title OR comics.ptTitle LIKE :comic_title OR comics.description LIKE :comic_title',
               {
                 comic_title: `%${searchText}%`
               }
@@ -285,7 +285,7 @@ export class CharacterController {
           found = await seriesRepository
             .createQueryBuilder('series')
             .where(
-              'series.enTitle LIKE :series_title OR series.ptTitle LIKE :series_title',
+              'series.enTitle LIKE :series_title OR series.ptTitle LIKE :series_title OR series.description LIKE :series_title',
               {
                 series_title: `%${searchText}%`
               }
@@ -299,7 +299,7 @@ export class CharacterController {
           found = await storiesRepository
             .createQueryBuilder('stories')
             .where(
-              'stories.enTitle LIKE :story_title OR stories.ptTitle LIKE :story_title',
+              'stories.enTitle LIKE :story_title OR stories.ptTitle LIKE :story_title OR stories.description LIKE :story_title',
               {
                 story_title: `%${searchText}%`
               }
@@ -312,7 +312,7 @@ export class CharacterController {
           found = await eventsRepository
             .createQueryBuilder('events')
             .where(
-              'events.enTitle LIKE :event_title OR events.ptTitle LIKE :event_title',
+              'events.enTitle LIKE :event_title OR events.ptTitle LIKE :event_title OR events.description LIKE :event_title',
               {
                 event_title: `%${searchText}%`
               }

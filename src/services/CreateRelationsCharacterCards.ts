@@ -18,7 +18,8 @@ export default class CreateRelationsCharacterCards {
       const comicsRepository = MysqlDataSource.getRepository(Comic);
       let comic;
 
-      const characterComicsRepository = MysqlDataSource.getRepository(CharacterComics)
+      const characterComicsRepository =
+        MysqlDataSource.getRepository(CharacterComics);
       let characterComic;
 
       for (const dataObject of dataArray as Array<CategoryModel>) {
@@ -27,7 +28,7 @@ export default class CreateRelationsCharacterCards {
         //pegar idMarvel do personagem e encontrar ele
         character = await charactersRepository.findOne({
           where: {
-            idMarvel: dataObject.id 
+            idMarvel: dataObject.id
           }
         });
 
@@ -49,7 +50,7 @@ export default class CreateRelationsCharacterCards {
           console.log('COMIC: ', comic);
 
           //fazer relacionamento personagem-comic
-          if(character && comic){
+          if (character && comic) {
             characterComic = new CharacterComics();
             characterComic.character = character;
             characterComic.comic = comic;
