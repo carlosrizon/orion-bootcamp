@@ -38,6 +38,7 @@
   },
   "dependencies": {
     "@google-cloud/translate": "8.0.2",
+    "@googleapis/sheets": "^5.0.5",
     "@types/express-validator": "3.0.0",
     "@types/node-cron": "3.0.11",
     "axios": "1.6.0",

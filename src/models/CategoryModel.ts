@@ -49,6 +49,10 @@ export default interface CategoryModel {
    */
   thumb: string;
   /**
+   * Link que direciona para o site da marvel com as informações daquele item.
+   */
+  link: string;
+  /**
    * Indicação de tradução de atributos.
    *
    * Será true apenas se todos atributos não nulos forem traduzidos.
