@@ -76,7 +76,7 @@ export class AuthController {
    *               example:
    *                 date: {}
    *                 status: false
-   *                 data: "Senha inválida."
+   *                 data: "E-mail ou senha inválidos."
    *       '500':
    *           description: 'Erro interno.'
    *           content:
@@ -113,9 +113,11 @@ export class AuthController {
         .getOne();
 
       if (!user) {
-        return res
-          .status(401)
-          .send({ date: new Date(), status: false, data: 'E-mail inválido.' });
+        return res.status(401).send({
+          date: new Date(),
+          status: false,
+          data: 'E-mail ou senha inválidos'
+        });
       }
 
       //conferir flag de ativação
@@ -134,9 +136,11 @@ export class AuthController {
       );
 
       if (!passwordIsValid) {
-        return res
-          .status(401)
-          .send({ date: new Date(), status: false, data: 'Senha inválida.' });
+        return res.status(401).send({
+          date: new Date(),
+          status: false,
+          data: 'E-mail ou senha inválidos'
+        });
       }
 
       //atribuir token jwt

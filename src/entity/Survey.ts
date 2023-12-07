@@ -13,7 +13,7 @@ export default class Survey {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ type: 'varchar', length: 256, default: null })
+  @Column({ type: 'varchar', length: 300, default: null })
   comment: string;
 
   @Column({ type: 'int', nullable: false })

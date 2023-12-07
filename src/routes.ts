@@ -10,6 +10,18 @@ import SurveyValidator from './validator/SurveyValidator';
 import { RecoveryController } from './controller/RecoveryController';
 import { CommentController } from './controller/CommentController';
 import { ArtistsController } from './controller/ArtistsController';
+import { validateAmountPositiveInteger } from './validator/getShowcasePostersValidator';
+import {
+  validateCardDetailsParams,
+  validateGetFavoritesPageParams,
+  validateGetPageParams,
+  validatePostFavoriteParams
+} from './validator/characterEndpointsValidators';
+import {
+  validateDeleteComment,
+  validateGetComment,
+  validatePostComment
+} from './validator/commentEndpointsValidators';
 
 const router = Router();
 
@@ -31,34 +43,52 @@ router.get('/v1/check', new AuthController().confirmRegistration);
 router.post('/v1/recovery', new RecoveryController().validateUserEmail);
 router.post('/v1/changepassword', new RecoveryController().changePassword);
 
-//POST?
 router.get(
   '/v1/favorites',
   authenticateToken,
+  validateGetFavoritesPageParams,
   new CharacterController().getFavoritesPage
 );
 
 router.post(
   '/v1/favorite',
   authenticateToken,
+  validatePostFavoriteParams,
   new CharacterController().favoriteCharacter
 );
 
 router.get(
   '/v1/posters',
   authenticateToken,
+  validateAmountPositiveInteger,
   new ArtistsController().getShowcasePosters
 );
 
 router.get(
   '/v1/:category',
   authenticateToken,
+  validateGetPageParams,
   new CharacterController().getPage
+);
+
+router.post(
+  '/v1/comments/:category/:categoryId',
+  authenticateToken,
+  validatePostComment,
+  new CommentController().createComment
+);
+
+router.get(
+  '/v1/comments/:category/:categoryId',
+  authenticateToken,
+  validateGetComment,
+  new CommentController().getComments
 );
 
 router.delete(
   '/v1/comments/:comment_id',
   authenticateToken,
+  validateDeleteComment,
   new CommentController().deleteComment
 );
 
@@ -66,22 +96,21 @@ router.delete(
 router.get(
   '/v1/survey/user_eligibility',
   authenticateToken,
-  new SurveyValidator().verifyEligibility,
-  new SurveyController().eligible
+  new SurveyController().verifyEligibility
 );
 
 // endpoint para envio de dados para registro de pesquisa de satisfação do usuário
 router.post(
   '/v1/survey/user_answer',
   authenticateToken,
-  new SurveyValidator().verifyEligibility,
-  new SurveyValidator().verifyAnswer,
+  new SurveyValidator().verify,
   new SurveyController().create
 );
 
 router.get(
   '/v1/:category/:category_id',
   authenticateToken,
+  validateCardDetailsParams,
   countCardClick,
   new CharacterController().getCardDetails
 );

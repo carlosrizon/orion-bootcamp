@@ -119,26 +119,26 @@ export class CharacterController {
         //encontrar o character
         const characterRepository = MysqlDataSource.getRepository(Character);
 
-        const character: Character = await characterRepository.findOne({
-          where: {
-            id: category_id
-          }
-        });
+          const character: Character = await characterRepository.findOne({
+            where: {
+              id: category_id
+            }
+          });
 
-        //pegar todos as series, eventos, stories e comics do character selecionado
-        const series = await getSeriesByCharacter(character);
-        const events = await getEventsByCharacter(character);
-        const stories = await getStoriesByCharacter(character);
-        const comics = await getComicsByCharacter(character);
+          //pegar todos as series, eventos, stories e comics do character selecionado
+          const series = await getSeriesByCharacter(character);
+          const events = await getEventsByCharacter(character);
+          const stories = await getStoriesByCharacter(character);
+          const comics = await getComicsByCharacter(character);
 
-        const objResp = {
-          characterName: character.enName,
-          characterDescription: character.description,
-          comicsList: comics,
-          seriesList: series,
-          storiesList: stories,
-          eventsList: events
-        };
+          const objResp = {
+            characterName: character.enName,
+            characterDescription: character.description,
+            comicsList: comics,
+            seriesList: series,
+            storiesList: stories,
+            eventsList: events
+          };
 
         return res
           .status(200)
@@ -321,7 +321,7 @@ export class CharacterController {
           found = await charactersRepository
             .createQueryBuilder('characters')
             .where(
-              'characters.enName LIKE :character_name OR characters.ptName LIKE :character_name',
+              'characters.enName LIKE :character_name OR characters.ptName LIKE :character_name OR characters.description LIKE :character_name',
               {
                 character_name: `%${searchText}%`
               }
@@ -335,7 +335,7 @@ export class CharacterController {
           found = await comicsRepository
             .createQueryBuilder('comics')
             .where(
-              'comics.enTitle LIKE :comic_title OR comics.ptTitle LIKE :comic_title',
+              'comics.enTitle LIKE :comic_title OR comics.ptTitle LIKE :comic_title OR comics.description LIKE :comic_title',
               {
                 comic_title: `%${searchText}%`
               }
@@ -349,7 +349,7 @@ export class CharacterController {
           found = await seriesRepository
             .createQueryBuilder('series')
             .where(
-              'series.enTitle LIKE :series_title OR series.ptTitle LIKE :series_title',
+              'series.enTitle LIKE :series_title OR series.ptTitle LIKE :series_title OR series.description LIKE :series_title',
               {
                 series_title: `%${searchText}%`
               }
@@ -363,7 +363,7 @@ export class CharacterController {
           found = await storiesRepository
             .createQueryBuilder('stories')
             .where(
-              'stories.enTitle LIKE :story_title OR stories.ptTitle LIKE :story_title',
+              'stories.enTitle LIKE :story_title OR stories.ptTitle LIKE :story_title OR stories.description LIKE :story_title',
               {
                 story_title: `%${searchText}%`
               }
@@ -376,7 +376,7 @@ export class CharacterController {
           found = await eventsRepository
             .createQueryBuilder('events')
             .where(
-              'events.enTitle LIKE :event_title OR events.ptTitle LIKE :event_title',
+              'events.enTitle LIKE :event_title OR events.ptTitle LIKE :event_title OR events.description LIKE :event_title',
               {
                 event_title: `%${searchText}%`
               }
@@ -537,7 +537,7 @@ export class CharacterController {
         .innerJoinAndSelect('userFavorites.character', 'character')
         .innerJoinAndSelect('userFavorites.user', 'user')
         .where(
-          '(character.enName LIKE :character_name OR character.ptName LIKE :character_name) AND user.id = :user_id',
+          '(character.enName LIKE :character_name OR character.ptName LIKE :character_name OR character.description LIKE :character_name) AND user.id = :user_id',
           {
             character_name: `%${searchText}%`,
             user_id: user_id

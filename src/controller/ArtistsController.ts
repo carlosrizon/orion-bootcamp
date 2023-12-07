@@ -17,7 +17,7 @@ export class ArtistsController {
    *     parameters:
    *       - in: query
    *         name: amount
-   *         required: true
+   *         required: false
    *         schema:
    *           type: integer
    *           minimum: 1

@@ -1,65 +1,13 @@
 import { Request, Response, NextFunction } from 'express';
 import { body, validationResult } from 'express-validator';
-import { MysqlDataSource } from '../config/database';
 import { endOfDay, subDays } from 'date-fns';
-import User from '../entity/User';
 import * as fs from 'fs';
+import SurveyRepository from '../repository/SurveyRepository';
 
 /**
  * Classe que implementa operações de verificação de dados relacionados à pesquisa, enviados na requisição
  */
 export default class SurveyValidator {
-  /**
-   * Função para verificação de status de elegibilidade de usuário para realização da pesquisa
-   *
-   * @param req - Objeto de requisição do Express
-   * @param res - Objeto de resposta do Express
-   * @param next - Função do Express para chamada do próximo middleware definido na rota
-   * @returns Retorna promise de response do Express
-   */
-  async verifyEligibility(req?: Request, res?: Response, next?: NextFunction) {
-    const userId: number = req.body.user.id;
-    const userRepository = MysqlDataSource.getRepository(User);
-
-    /**
-     * Aptidão para a pesquisa:
-     * 15 dias após a data de criação (para 1º pesquisa) OU 15 dias após a data de realização da última pesquisa
-     */
-
-    try {
-      const userLastSurveyDates = await userRepository
-        .createQueryBuilder('users')
-        .leftJoinAndSelect('users.surveys', 'surveys')
-        .select('MAX(surveys.createdAt)', 'latestSurvey')
-        .addSelect('users.createdAt', 'userCreationDate')
-        .where('users.id = :id', { id: userId })
-        .getRawOne();
-
-      // Data que representa o final do dia, 15 dias atrás em relação à data atual
-      const usageStartRangeTime: Date = endOfDay(subDays(new Date(), 15));
-
-      if (
-        userLastSurveyDates.userCreationDate > usageStartRangeTime ||
-        userLastSurveyDates.latestSurvey > usageStartRangeTime
-      ) {
-        return res.status(422).json({
-          date: new Date(),
-          status: false,
-          data: { eligible: false }
-        });
-      }
-
-      next();
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({
-        date: new Date(),
-        status: false,
-        data: 'erro interno do servidor'
-      });
-    }
-  }
-
   /**
    * Função de verificação dos dados da pesquisa, se atendem aos pré-requisitos definidos
    *
@@ -68,7 +16,23 @@ export default class SurveyValidator {
    * @param next - Função do Express para chamada do próximo middleware definido na rota
    * @returns Retorna promise de response do Express
    */
-  async verifyAnswer(req?: Request, res?: Response, next?: NextFunction) {
+  async verify(req?: Request, res?: Response, next?: NextFunction) {
+    const surveyRepository = new SurveyRepository();
+    const userId: number = req.body.user.id;
+
+    const userLastSurveyDates =
+      await surveyRepository.getUserSurveyDatesByID(userId);
+    const usageStartRangeTime: Date = endOfDay(subDays(new Date(), 15));
+
+    if (
+      userLastSurveyDates.userCreationDate > usageStartRangeTime ||
+      userLastSurveyDates.latestSurvey > usageStartRangeTime
+    ) {
+      return res
+        .status(422)
+        .json({ date: new Date(), status: false, data: { eligible: false } });
+    }
+
     const validationChain = [
       // Validação da nota, se foi fornecida, se é inteiro e se está dentro do range válido
       body('grade')
@@ -87,13 +51,19 @@ export default class SurveyValidator {
           return Promise.resolve();
         }),
 
-      // Validação do comentário, se é string e se contém palavras ofensivas
+      // Validação do comentário, se é string, se tamanho entre mínimo e máximo definidos e se contém palavras ofensivas
       body('comment')
         .isString()
         .withMessage('Tipo de dado inválido para comentário')
         .bail()
+        .isLength({
+          min: 0,
+          max: 300
+        })
+        .withMessage('Comentário muito extenso!')
+        .bail()
         .toLowerCase()
-        .custom(async (userComment: string) => {
+        .custom((userComment: string) => {
           const userCommentWords = userComment.split(/[\s,.!:?;'"]+/);
 
           const bannedWordsFile = '/app/src/validator/bannedWords.txt';
