@@ -28,7 +28,7 @@ export async function getComicsByCharacter(
     MysqlDataSource.getRepository(CharacterComics);
 
   const characterComics = await characterComicsRepository.find({
-    where: { character: character },
+    where: { character: { id: character.id } },
     relations: ['comic']
   });
 
@@ -51,7 +51,7 @@ export async function getSeriesByCharacter(
     MysqlDataSource.getRepository(CharacterSeries);
 
   const characterSeries = await characterSeriesRepository.find({
-    where: { character: character },
+    where: { character: { id: character.id } },
     relations: ['series']
   });
 
@@ -76,7 +76,7 @@ export async function getEventsByCharacter(
     MysqlDataSource.getRepository(CharacterEvents);
 
   const characterEvents = await characterEventsRepository.find({
-    where: { character: character },
+    where: { character: { id: character.id } },
     relations: ['event']
   });
 
@@ -101,7 +101,7 @@ export async function getStoriesByCharacter(
     MysqlDataSource.getRepository(CharacterStories);
 
   const characterStories = await characterStoriesRepository.find({
-    where: { character: character },
+    where: { character: { id: character.id } },
     relations: ['story']
   });
 
@@ -120,9 +120,9 @@ export async function getStoriesByCharacter(
  * @returns {formattedCard[]} - Um array de cards com os valores {id, description, thumb} somente
  */
 function selectFewValues(cards) {
-  const formattedCards = cards.map(({ id, description, thumb }) => ({
+  const formattedCards = cards.map(({ id, enTitle, thumb }) => ({
     id,
-    description,
+    enTitle,
     thumb
   }));
 
