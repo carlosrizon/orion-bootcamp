@@ -134,6 +134,7 @@ export class CharacterController {
         const objResp = {
           characterName: character.enName,
           characterDescription: character.description,
+          characterThumb: character.thumb,
           comicsList: comics,
           seriesList: series,
           storiesList: stories,
