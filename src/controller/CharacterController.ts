@@ -110,38 +110,46 @@ export class CharacterController {
    *
    */
   async getCardDetails(req: Request, res: Response) {
-    const cardCategory: Category = req.params.category as Category;
-    const category_id: number = Number(req.params.category_id);
+    try {
+      const cardCategory: Category = req.params.category as Category;
+      const category_id: number = Number(req.params.category_id);
 
-    switch (cardCategory) {
-      case Category.Characters:
-        //encontrar o character
-        const characterRepository = MysqlDataSource.getRepository(Character);
+      switch (cardCategory) {
+        case Category.Characters:
+          //encontrar o character
+          const characterRepository = MysqlDataSource.getRepository(Character);
 
-        const character: Character = await characterRepository.findOne({
-          where: {
-            id: category_id
-          }
-        });
+          const character: Character = await characterRepository.findOne({
+            where: {
+              id: category_id
+            }
+          });
 
-        //pegar todos as series, eventos, stories e comics do character selecionado
-        const series = await getSeriesByCharacter(character);
-        const events = await getEventsByCharacter(character);
-        const stories = await getStoriesByCharacter(character);
-        const comics = await getComicsByCharacter(character);
+          //pegar todos as series, eventos, stories e comics do character selecionado
+          const series = await getSeriesByCharacter(character);
+          const events = await getEventsByCharacter(character);
+          const stories = await getStoriesByCharacter(character);
+          const comics = await getComicsByCharacter(character);
 
-        const objResp = {
-          characterName: character.enName,
-          characterDescription: character.description,
-          comicsList: comics,
-          seriesList: series,
-          storiesList: stories,
-          eventsList: events
-        };
+          const objResp = {
+            characterName: character.enName,
+            characterDescription: character.description,
+            comicsList: comics,
+            seriesList: series,
+            storiesList: stories,
+            eventsList: events
+          };
 
-        return res.status(200).send(objResp);
-
-        break;
+          return res.status(200).send(objResp);
+          break;
+      }
+    } catch (error) {
+      console.log('Erro: ', error);
+      return res.status(500).send({
+        date: new Date(),
+        status: false,
+        data: 'Um erro interno ocorreu.'
+      });
     }
   }
 
@@ -473,7 +481,7 @@ export class CharacterController {
         .innerJoinAndSelect('userFavorites.character', 'character')
         .innerJoinAndSelect('userFavorites.user', 'user')
         .where(
-          '(character.enName LIKE :character_name OR character.ptName LIKE :character_name) AND user.id = :user_id',
+          '(character.enName LIKE :character_name OR character.ptName LIKE :character_name OR character.description LIKE :character_name) AND user.id = :user_id',
           {
             character_name: `%${searchText}%`,
             user_id: user_id
