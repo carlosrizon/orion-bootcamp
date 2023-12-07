@@ -10,6 +10,7 @@ import Character from '../entity/Character';
 import Comic from '../entity/Comic';
 import Series from '../entity/Series';
 import Story from '../entity/Story';
+import Event from '../entity/Event';
 
 /**
  * Middleware que realiza a contabilização do clique no card pelo usuário

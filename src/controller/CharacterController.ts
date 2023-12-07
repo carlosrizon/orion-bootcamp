@@ -16,6 +16,7 @@ import {
   getSeriesByCharacter,
   getStoriesByCharacter
 } from '../utils/cardsDetailsUtils';
+import CategoryModel from 'models/CategoryInterface';
 
 /**
  * Classe com operações relacionadas à operações relacionadas a cards exibidos na aplicação
@@ -114,37 +115,92 @@ export class CharacterController {
       const cardCategory: Category = req.params.category as Category;
       const category_id: number = Number(req.params.category_id);
 
-      switch (cardCategory) {
-        case Category.Characters:
-          //encontrar o character
-          const characterRepository = MysqlDataSource.getRepository(Character);
+      if (cardCategory === Category.Characters) {
+        //encontrar o character
+        const characterRepository = MysqlDataSource.getRepository(Character);
 
-          const character: Character = await characterRepository.findOne({
-            where: {
-              id: category_id
-            }
-          });
+        const character: Character = await characterRepository.findOne({
+          where: {
+            id: category_id
+          }
+        });
 
-          //pegar todos as series, eventos, stories e comics do character selecionado
-          const series = await getSeriesByCharacter(character);
-          const events = await getEventsByCharacter(character);
-          const stories = await getStoriesByCharacter(character);
-          const comics = await getComicsByCharacter(character);
+        //pegar todos as series, eventos, stories e comics do character selecionado
+        const series = await getSeriesByCharacter(character);
+        const events = await getEventsByCharacter(character);
+        const stories = await getStoriesByCharacter(character);
+        const comics = await getComicsByCharacter(character);
 
-          const objResp = {
-            characterName: character.enName,
-            characterDescription: character.description,
-            comicsList: comics,
-            seriesList: series,
-            storiesList: stories,
-            eventsList: events
-          };
+        const objResp = {
+          characterName: character.enName,
+          characterDescription: character.description,
+          comicsList: comics,
+          seriesList: series,
+          storiesList: stories,
+          eventsList: events
+        };
 
-          return res.status(200).send(objResp);
-          break;
+        return res
+          .status(200)
+          .send({ date: new Date(), status: true, data: objResp });
+      } else if (
+        cardCategory == Category.Comics ||
+        cardCategory == Category.Series ||
+        cardCategory == Category.Stories ||
+        cardCategory == Category.Events
+      ) {
+        let item: CategoryModel;
+
+        //encontra o recurso
+        switch (cardCategory) {
+          case Category.Comics:
+            const comicsRepository = MysqlDataSource.getRepository(Comic);
+            item = await comicsRepository.findOne({
+              where: {
+                id: category_id
+              }
+            });
+            break;
+          case Category.Series:
+            const seriesRepository = MysqlDataSource.getRepository(Series);
+            item = await seriesRepository.findOne({
+              where: {
+                id: category_id
+              }
+            });
+            break;
+          case Category.Stories:
+            const storiesRepository = MysqlDataSource.getRepository(Story);
+            item = await storiesRepository.findOne({
+              where: {
+                id: category_id
+              }
+            });
+            break;
+          case Category.Events:
+            const eventsRepository = MysqlDataSource.getRepository(Event);
+            item = await eventsRepository.findOne({
+              where: {
+                id: category_id
+              }
+            });
+            break;
+        }
+
+        const objResp = {
+          title: item.enTitle,
+          description: item.description,
+          thumb: item.thumb,
+          link: 'http://mock-pagina-de-detalhes.com'
+        };
+
+        return res.status(200).send({
+          date: new Date(),
+          status: true,
+          data: objResp
+        });
       }
     } catch (error) {
-      console.log('Erro: ', error);
       return res.status(500).send({
         date: new Date(),
         status: false,
