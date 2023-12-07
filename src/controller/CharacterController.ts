@@ -16,7 +16,7 @@ import {
   getSeriesByCharacter,
   getStoriesByCharacter
 } from '../utils/cardsDetailsUtils';
-import CategoryModel from '../models/CategoryInterface';
+import CategoryModel from '../models/CategoryModel';
 
 /**
  * Classe com operações relacionadas à operações relacionadas a cards exibidos na aplicação
