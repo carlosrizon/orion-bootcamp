@@ -119,17 +119,17 @@ export class CharacterController {
         //encontrar o character
         const characterRepository = MysqlDataSource.getRepository(Character);
 
-        const character: Character = await characterRepository.findOne({
-          where: {
-            id: category_id
-          }
-        });
+          const character: Character = await characterRepository.findOne({
+            where: {
+              id: category_id
+            }
+          });
 
-        //pegar todos as series, eventos, stories e comics do character selecionado
-        const series = await getSeriesByCharacter(character);
-        const events = await getEventsByCharacter(character);
-        const stories = await getStoriesByCharacter(character);
-        const comics = await getComicsByCharacter(character);
+          //pegar todos as series, eventos, stories e comics do character selecionado
+          const series = await getSeriesByCharacter(character);
+          const events = await getEventsByCharacter(character);
+          const stories = await getStoriesByCharacter(character);
+          const comics = await getComicsByCharacter(character);
 
         const objResp = {
           characterName: character.enName,
@@ -210,6 +210,7 @@ export class CharacterController {
       });
     }
   }
+
   /**
    * @swagger
    *
@@ -538,7 +539,7 @@ export class CharacterController {
         .innerJoinAndSelect('userFavorites.character', 'character')
         .innerJoinAndSelect('userFavorites.user', 'user')
         .where(
-          '(character.enName LIKE :character_name OR character.ptName LIKE :character_name) AND user.id = :user_id',
+          '(character.enName LIKE :character_name OR character.ptName LIKE :character_name OR character.description LIKE :character_name) AND user.id = :user_id',
           {
             character_name: `%${searchText}%`,
             user_id: user_id
