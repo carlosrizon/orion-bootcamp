@@ -252,9 +252,22 @@ export class CommentController {
         });
       }
 
+      //query que conta quantos comentários o recurso possui
+      const totalComments = await commentsRepository
+        .createQueryBuilder('comments')
+        .where(
+          'comments.category = :category AND comments.categoryId = :categoryId',
+          { category, categoryId }
+        )
+        .getCount();
+
+      const commentsInfo = { totalComments: totalComments };
+
       //adicionar parametro userComment nos objetos comments
       const commentsWithUserComment = comments.map((comment) => ({
         id: comment.id,
+        userName: comment.user.firstName,
+        userLastName: comment.user.lastName,
         comment: comment.comment,
         createdAt: comment.createdAt,
         categoryId: comment.categoryId,
@@ -265,7 +278,8 @@ export class CommentController {
       return res.status(200).json({
         date: new Date(),
         status: true,
-        data: commentsWithUserComment
+        data: commentsInfo,
+        commentsWithUserComment
       });
     } catch (error) {
       console.log('Erro em getcomments: ', error);
