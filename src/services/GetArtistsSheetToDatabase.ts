@@ -29,7 +29,6 @@ export default class GetArtistsSheetToDatabase {
    */
   async getSheetToDatabase() {
     try {
-
       const responsesSheet = sheets({ version: 'v4' });
 
       //range pega todas as linhas a partir da segunda, até a coluna J
