@@ -3,7 +3,7 @@ import Series from '../entity/Series';
 import Story from '../entity/Story';
 import Event from '../entity/Event';
 import Character from '../entity/Character';
-import RunEnvironmentsModel from './RunEnvironmentsModel';
+import RunEnvironmentsModel from '../library/RunEnvironmentsModel';
 import { CategoryClassAndAlias } from '../models/CategoryClassAndAliasType';
 
 export default class CategoryUpdateVariables {
