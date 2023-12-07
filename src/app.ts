@@ -130,9 +130,10 @@ async function updateCategoriesDatabases() {
   try {
     console.log('atualizando bancos de dados de categorias uma vez por dia');
 
-    const categories = categoriesArray();
+    const batchAmount = 2; //quantas 'rodadas' de popular serão feitas para cada categoria
+    const batchSize = 300; //quantos cards por 'rodada' serao obtidos de cada categoria. deve ser multiplo de 100
 
-    const n: number = 2;
+    const categories = categoriesArray();
 
     for (const category of categories) {
       const [className, classAlias] = category;
@@ -143,15 +144,19 @@ async function updateCategoriesDatabases() {
 
       const categoryRepository = new CategoryRepository();
 
-      for (let i = 0; i < n; i++) {
-        console.log(`Iteration ${i + 1}`);
-        const dataArray = await categoryHandler.getTestElements(classAlias, i);
+      for (let i = 0; i < batchAmount; i++) {
+        const dataArray = await categoryHandler.getElementsByBatches(
+          classAlias,
+          i,
+          batchSize
+        );
 
+        //se nao retornou nenhum objeto no ultimo batch entao ja trouxe todos os cards da categoria
         if (dataArray.length == 0) {
           break;
         }
 
-        //so pra categoria characters
+        //se a categoria for personagens, realiza o relacionamento com outros cards
         if (classAlias == 'characters') {
           CreateRelationsCharacterCards.createRelations(dataArray);
         }
@@ -165,10 +170,13 @@ async function updateCategoriesDatabases() {
           classAlias
         );
       }
-
-      //cria as relações dos personagens/quadrinhos aqui, após adicionar tudo no banco
-      //usar dataArray que já foi pego
     }
+
+    console.log(
+      'Populou o banco com ',
+      batchSize * batchAmount,
+      'cards de cada categoria.'
+    );
   } catch (error) {
     console.log(
       `falha na execução da atualização do banco de dados
@@ -178,7 +186,7 @@ async function updateCategoriesDatabases() {
   }
 }
 
-updateCategoriesDatabases();
+//updateCategoriesDatabases();
 
 const swaggerSpec = swaggerJSDoc(swaggerConfig);
 
