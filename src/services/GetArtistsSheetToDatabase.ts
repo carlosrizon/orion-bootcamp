@@ -1,7 +1,7 @@
 import { MysqlDataSource } from '../config/database';
 import Artist from '../entity/Artist';
 
-import { google } from 'googleapis';
+import { sheets } from '@googleapis/sheets';
 
 /**
  * Função que remove todas as entradas da tabela de artistas, para fins de atualização.
@@ -29,10 +29,10 @@ export default class GetArtistsSheetToDatabase {
    */
   async getSheetToDatabase() {
     try {
-      const sheets = google.sheets({ version: 'v4' });
+      const responsesSheet = sheets({ version: 'v4' });
 
       //range pega todas as linhas a partir da segunda, até a coluna J
-      const res = await sheets.spreadsheets.values.get({
+      const res = await responsesSheet.spreadsheets.values.get({
         spreadsheetId: process.env.ARTISTS_SPREADSHEET_ID,
         range: 'Form Responses 1!A2:K',
         key: process.env.GOOGLE_SHEET_API_KEY
