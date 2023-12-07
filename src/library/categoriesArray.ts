@@ -4,16 +4,14 @@ import Story from '../entity/Story';
 import Event from '../entity/Event';
 import Character from '../entity/Character';
 
-// Array de arrays com instâncias de entidades de categorias e respectivas alias strings
+// Array de arrays com instâncias de entidades de categorias e respectivas alias strings.
 const categoriesClassAndAlias = [
   [Comic, 'comics'],
   [Series, 'series'],
-  [Story, 'stories'],
   [Event, 'events'],
+  [Story, 'stories'],
   [Character, 'characters']
 ];
-//const categoriesClassAndAlias = [[Character, 'characters']];
-
 /**
  * Função de acesso à constante categoriesClassAndAlias
  * @returns {categoriesClassAndAlias} - Array de arrays com instâncias de entidades de categorias e respectivas alias strings
