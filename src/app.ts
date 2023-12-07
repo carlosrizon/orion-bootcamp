@@ -20,7 +20,7 @@ import CreateRelationsCharacterCards from './services/CreateRelationsCharacterCa
 import { CharacterComics } from './entity/CharacterComics';
 import Comic from './entity/Comic';
 import Character from './entity/Character';
-//import GetArtistsSheetToDatabase from './services/GetArtistsSheetToDatabase';
+import GetArtistsSheetToDatabase from './services/GetArtistsSheetToDatabase';
 
 MysqlDataSource.initialize()
   .then(async () => {
@@ -32,12 +32,12 @@ MysqlDataSource.initialize()
 
 const app = express();
 
-// const updateArtistsTable = new GetArtistsSheetToDatabase();
-// updateArtistsTable.getSheetToDatabase();
+const updateArtistsTable = new GetArtistsSheetToDatabase();
+updateArtistsTable.getSheetToDatabase();
 
-// cron.schedule('0 0 * * *', () => {
-//   updateArtistsTable.getSheetToDatabase();
-// });
+cron.schedule('0 0 * * *', () => {
+  updateArtistsTable.getSheetToDatabase();
+});
 
 cron.schedule('0 6 * * *', async function updateSurveyDatabase() {
   console.log('atualizando banco de dados de pesquisas 1 vez por dia');
