@@ -53,6 +53,8 @@ export default class MarvelDataFormatter {
   }
 
   private _addProperties(object) {
+    const detailLink =
+      object.urls?.find((url) => url.type === 'detail')?.url || '';
     const specifcProperties = object.name
       ? { enName: object.name, ptName: object.name }
       : { enTitle: object.title, ptTitle: object.title };
@@ -61,6 +63,7 @@ export default class MarvelDataFormatter {
       idMarvel: object.id,
       description: object.description,
       thumb: this._thumbFormatter(object),
+      link: detailLink,
       isTranslated: true
     };
   }
