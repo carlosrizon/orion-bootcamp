@@ -26,9 +26,6 @@ import 'dotenv/config';
 import CategoryDataArrayAnsLastOffset from 'models/CategoryDataArrayAnsLastOffset';
 import { ResponseCategory } from 'models/ResponseCategoryType';
 import CreateRelationsCharacterCards from './services/CreateRelationsCharacterCards';
-import { CharacterComics } from './entity/CharacterComics';
-import Comic from './entity/Comic';
-import Character from './entity/Character';
 import GetArtistsSheetToDatabase from './services/GetArtistsSheetToDatabase';
 
 MysqlDataSource.initialize()
@@ -135,7 +132,7 @@ app.use(express.json());
 app.use(cors({ origin: true }));
 app.use(routes);
 
-cron.schedule('*/3 * * * *', async function updateCategoriesDatabases() {
+cron.schedule('0 8 * * *', async function updateCategoriesDatabases() {
   console.log('atualizando bancos de dados de categorias uma vez por dia');
 
   const categoryUpdateVariables: CategoryUpdateVariables =
@@ -236,11 +233,10 @@ cron.schedule('*/3 * * * *', async function updateCategoriesDatabases() {
 
             totalUpdated += formattedArray.length;
 
-                //se a categoria for personagens, realiza o relacionamento com outros cards
-        if (classAlias == 'characters') {
-          CreateRelationsCharacterCards.createRelations(dataArray);
-        }
-
+            //se a categoria for personagens, realiza o relacionamento com outros cards
+            if (classAlias == 'characters') {
+              CreateRelationsCharacterCards.createRelations(dataArray);
+            }
           }
         } while (--iterationsPerSaveCycle);
 
