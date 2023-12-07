@@ -1,6 +1,4 @@
-import CategoryModel from 'models/CategoryInterface';
-import { categoriesArray } from '../library/categoriesArray';
-import MarvelAPIService from './MarvelAPIService';
+import CategoryModel from '../models/CategoryModel';
 import { MysqlDataSource } from '../config/database';
 import Character from '../entity/Character';
 import Comic from '../entity/Comic';
