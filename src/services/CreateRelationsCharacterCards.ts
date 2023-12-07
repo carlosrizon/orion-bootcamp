@@ -1,4 +1,3 @@
-import CategoryModel from '../models/CategoryModel';
 import { MysqlDataSource } from '../config/database';
 import Character from '../entity/Character';
 import Comic from '../entity/Comic';
@@ -9,6 +8,7 @@ import Story from '../entity/Story';
 import { CharacterSeries } from '../entity/CharacterSeries';
 import { CharacterEvents } from '../entity/CharacterEvents';
 import { CharacterStories } from '../entity/CharacterStories';
+import ResponseCharacterModel from 'models/ResponseCharacterModel';
 
 export default class CreateRelationsCharacterCards {
   static async createRelations(dataArray) {
@@ -38,7 +38,7 @@ export default class CreateRelationsCharacterCards {
       let characterEvent;
       let characterStory;
 
-      for (const dataObject of dataArray as Array<CategoryModel>) {
+      for (const dataObject of dataArray as Array<ResponseCharacterModel>) {
         //pegar idMarvel do personagem e encontrar ele
         character = await charactersRepository.findOne({
           where: {

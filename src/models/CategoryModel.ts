@@ -58,10 +58,4 @@ export default interface CategoryModel {
    * Será true apenas se todos atributos não nulos forem traduzidos.
    */
   isTranslated: boolean;
-
-  comics?;
-  series?;
-  events?;
-  stories?;
-  id?;
 }
