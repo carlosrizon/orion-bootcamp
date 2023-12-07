@@ -16,7 +16,7 @@ import {
   getSeriesByCharacter,
   getStoriesByCharacter
 } from '../utils/cardsDetailsUtils';
-import CategoryModel from 'models/CategoryInterface';
+import CategoryModel from '../models/CategoryInterface';
 
 /**
  * Classe com operações relacionadas à operações relacionadas a cards exibidos na aplicação
@@ -134,6 +134,7 @@ export class CharacterController {
         const objResp = {
           characterName: character.enName,
           characterDescription: character.description,
+          characterThumb: character.thumb,
           comicsList: comics,
           seriesList: series,
           storiesList: stories,
@@ -201,6 +202,7 @@ export class CharacterController {
         });
       }
     } catch (error) {
+      console.log(error);
       return res.status(500).send({
         date: new Date(),
         status: false,

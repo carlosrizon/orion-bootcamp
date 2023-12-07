@@ -25,7 +25,11 @@ import CategoryUpdateRepository from './repository/CategoryUpdateRepository';
 import 'dotenv/config';
 import CategoryDataArrayAnsLastOffset from 'models/CategoryDataArrayAnsLastOffset';
 import { ResponseCategory } from 'models/ResponseCategoryType';
-//import GetArtistsSheetToDatabase from './services/GetArtistsSheetToDatabase';
+import CreateRelationsCharacterCards from './services/CreateRelationsCharacterCards';
+import { CharacterComics } from './entity/CharacterComics';
+import Comic from './entity/Comic';
+import Character from './entity/Character';
+import GetArtistsSheetToDatabase from './services/GetArtistsSheetToDatabase';
 
 MysqlDataSource.initialize()
   .then(async () => {
@@ -37,12 +41,12 @@ MysqlDataSource.initialize()
 
 const app = express();
 
-// const updateArtistsTable = new GetArtistsSheetToDatabase();
-// updateArtistsTable.getSheetToDatabase();
+const updateArtistsTable = new GetArtistsSheetToDatabase();
+updateArtistsTable.getSheetToDatabase();
 
-// cron.schedule('0 0 * * *', () => {
-//   updateArtistsTable.getSheetToDatabase();
-// });
+cron.schedule('0 0 * * *', () => {
+  updateArtistsTable.getSheetToDatabase();
+});
 
 cron.schedule('0 6 * * *', async function updateSurveyDatabase() {
   console.log('atualizando banco de dados de pesquisas 1 vez por dia');
@@ -231,6 +235,12 @@ cron.schedule('*/3 * * * *', async function updateCategoriesDatabases() {
             await categoryRepository.updateOrSave(formattedArray);
 
             totalUpdated += formattedArray.length;
+
+                //se a categoria for personagens, realiza o relacionamento com outros cards
+        if (classAlias == 'characters') {
+          CreateRelationsCharacterCards.createRelations(dataArray);
+        }
+
           }
         } while (--iterationsPerSaveCycle);
 
