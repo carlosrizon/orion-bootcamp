@@ -1,4 +1,4 @@
-import CategoryModel from '../models/CategoryInterface';
+import CategoryModel from '../models/CategoryModel';
 import TranslationAPIService from '../services/TranslationAPIService';
 
 export default class MarvelDataFormatter {

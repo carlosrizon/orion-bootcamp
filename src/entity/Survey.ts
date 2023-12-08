@@ -8,6 +8,9 @@ import {
 } from 'typeorm';
 import User from './User';
 
+/**
+ * Entidade com informações relacionadas às pesquisas de satisfação dos usuários
+ */
 @Entity('surveys')
 export default class Survey {
   @PrimaryGeneratedColumn()

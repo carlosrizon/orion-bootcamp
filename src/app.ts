@@ -6,16 +6,26 @@ import { MysqlDataSource } from './config/database';
 import { swaggerConfig } from './config/swagger';
 import routes from './routes';
 import cron from 'node-cron';
-import MarvelAPIService from './services/MarvelAPIService';
+import CategoryHandler from './utils/CategoryHandler';
 import MarvelDataFormatter from './utils/MarvelDataFormatter';
 import CategoryRepository from './repository/CategoryRepository';
-import CategoryModel from './models/CategoryInterface';
+import CategoryModel from './models/CategoryModel';
 import { EmailSender } from './library/mail';
 import User from './entity/User';
 import Survey from './entity/Survey';
-import { categoriesArray } from './library/categoriesArray';
+import CategoryUpdateVariables from './utils/CategoryUpdateVariables';
 import { subDays, endOfDay } from 'date-fns';
 import { DeepPartial } from 'typeorm';
+import { CategoryClass } from './models/CategoryClassType';
+import { CategoryClassAndAlias } from './models/CategoryClassAndAliasType';
+import CategoryUpdate from './entity/CategoryUpdate';
+import MarvelParamsDefinition from './utils/MarvelParamsDefinition';
+import AxiosService from './services/AxiosService';
+import CategoryUpdateRepository from './repository/CategoryUpdateRepository';
+import 'dotenv/config';
+import CategoryDataArrayAnsLastOffset from 'models/CategoryDataArrayAnsLastOffset';
+import { ResponseCategory } from 'models/ResponseCategoryType';
+import CreateRelationsCharacterCards from './services/CreateRelationsCharacterCards';
 import GetArtistsSheetToDatabase from './services/GetArtistsSheetToDatabase';
 
 MysqlDataSource.initialize()
@@ -125,31 +135,122 @@ app.use(routes);
 cron.schedule('0 8 * * *', async function updateCategoriesDatabases() {
   console.log('atualizando bancos de dados de categorias uma vez por dia');
 
-  const categories = categoriesArray();
+  const categoryUpdateVariables: CategoryUpdateVariables =
+    new CategoryUpdateVariables();
+
+  const categories: CategoryClassAndAlias[] =
+    categoryUpdateVariables.getCategoriesArray();
 
   for (const category of categories) {
-    const [className, classAlias] = category;
+    const className: CategoryClass = category.class;
+    const classAlias: string = category.alias;
 
-    try {
-      const categoryHandler = new MarvelAPIService();
-      const dataArray = await categoryHandler.getElements(classAlias);
+    const runEnviroment: string = process.env.NODE_ENV;
+    const categoryUpdateRepository: CategoryUpdateRepository =
+      new CategoryUpdateRepository();
+    const isProdEnviroment: boolean =
+      runEnviroment == categoryUpdateVariables.getRunEnvironments().PROD;
 
-      const formatter = new MarvelDataFormatter();
-      const formattedArray: Array<CategoryModel> =
-        await formatter.formatData(dataArray);
+    const axios: AxiosService = new AxiosService(classAlias);
+    const categoryHandler: CategoryHandler = new CategoryHandler(classAlias);
+    const paramsDefiner: MarvelParamsDefinition = new MarvelParamsDefinition(
+      classAlias
+    );
 
-      const categoryRepository = new CategoryRepository();
-      await categoryRepository.updateOrSave(
-        formattedArray,
-        className,
-        classAlias
-      );
-    } catch (error) {
-      console.log(
-        `falha na execução da atualização do banco de dados de ${classAlias}
-        executando tarefa novamente em 1 hora`,
-        error
-      );
+    const categoryRepository: CategoryRepository = new CategoryRepository(
+      className,
+      classAlias
+    );
+    const records: number = await categoryRepository.count();
+    const devTotalToUpdate: number = categoryUpdateVariables.devTotalToUpdate();
+
+    const newCategoryUpdate: DeepPartial<CategoryUpdate> = {
+      categoryAlias: classAlias
+    };
+
+    const marvelCategoryTotal: number = await axios.getTotal();
+    const batch: number =
+      marvelCategoryTotal / paramsDefiner.maxMarvelAPILimit();
+    const totalRequestsToPopulate: number = Math.ceil(batch);
+    const iterationsFor1000Items: number = 10;
+
+    let modifiedSince: null | Date = null;
+    let iterationsPerSaveCycle: number;
+    let iterationsPerTime: number;
+
+    if (isProdEnviroment || (!isProdEnviroment && records < devTotalToUpdate)) {
+      if (isProdEnviroment) {
+        if (!records) {
+          const ratio: number =
+            totalRequestsToPopulate / iterationsFor1000Items;
+          iterationsPerSaveCycle = Math.ceil(ratio);
+          iterationsPerTime =
+            totalRequestsToPopulate > iterationsFor1000Items
+              ? iterationsFor1000Items
+              : totalRequestsToPopulate;
+        } else {
+          const lastUpdateDate: Date =
+            await categoryUpdateRepository.getLatestUpdateByCategory(
+              classAlias
+            );
+          modifiedSince = lastUpdateDate;
+          newCategoryUpdate.specifiedDate = modifiedSince;
+        }
+      } else {
+        iterationsPerSaveCycle = 1;
+        iterationsPerTime = 1;
+      }
+
+      let totalUpdated: number = 0;
+      let offsetStart: number = 0;
+
+      try {
+        do {
+          const dataArrayAndLastOffset: CategoryDataArrayAnsLastOffset =
+            await categoryHandler.getElements(
+              offsetStart,
+              iterationsPerTime,
+              modifiedSince
+            );
+
+          const dataArray: ResponseCategory[] = dataArrayAndLastOffset.data;
+
+          offsetStart = dataArrayAndLastOffset.lastOffset +=
+            paramsDefiner.maxMarvelAPILimit();
+          iterationsPerTime = totalRequestsToPopulate - iterationsFor1000Items;
+
+          if (!dataArray.length) {
+            console.log(`database ${classAlias} já atualizado`);
+            break;
+          } else {
+            const formatter: MarvelDataFormatter = new MarvelDataFormatter();
+            const formattedArray: Array<CategoryModel> =
+              await formatter.formatData(dataArrayAndLastOffset.data);
+
+            const categoryRepository: CategoryRepository =
+              new CategoryRepository(className, classAlias);
+            await categoryRepository.updateOrSave(formattedArray);
+
+            totalUpdated += formattedArray.length;
+
+            //se a categoria for personagens, realiza o relacionamento com outros cards
+            if (classAlias == 'characters') {
+              CreateRelationsCharacterCards.createRelations(dataArray);
+            }
+          }
+        } while (--iterationsPerSaveCycle);
+
+        newCategoryUpdate.totalUpdated = totalUpdated;
+        await categoryUpdateRepository.save(newCategoryUpdate);
+      } catch (error) {
+        console.log(
+          `falha na execução da atualização do banco de dados de ${classAlias}
+        executando tarefa novamente em 1 dia`,
+          error
+        );
+      }
+    } else {
+      console.log(`database ${classAlias} já atualizado`);
     }
   }
 });

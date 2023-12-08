@@ -1,3 +1,7 @@
+/**
+ * @interface
+ * Modelo de objeto de comentários dos usuários
+ */
 export interface CommentsModel {
   /**
    * ID do usuário que está criando o comentário.
