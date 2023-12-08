@@ -191,7 +191,7 @@ export class CharacterController {
           title: item.enTitle,
           description: item.description,
           thumb: item.thumb,
-          link: 'http://mock-pagina-de-detalhes.com'
+          link: item.link
         };
 
         return res.status(200).send({
