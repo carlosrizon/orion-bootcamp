@@ -120,9 +120,9 @@ export async function getStoriesByCharacter(
  * @returns {formattedCard[]} - Um array de cards com os valores {id, description, thumb} somente
  */
 function selectFewValues(cards) {
-  const formattedCards = cards.map(({ id, description, thumb }) => ({
+  const formattedCards = cards.map(({ id, enTitle, thumb }) => ({
     id,
-    description,
+    enTitle,
     thumb
   }));
 
