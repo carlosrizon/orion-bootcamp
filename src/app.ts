@@ -27,6 +27,7 @@ import CategoryDataArrayAnsLastOffset from 'models/CategoryDataArrayAnsLastOffse
 import { ResponseCategory } from 'models/ResponseCategoryType';
 import CreateRelationsCharacterCards from './services/CreateRelationsCharacterCards';
 import GetArtistsSheetToDatabase from './services/GetArtistsSheetToDatabase';
+import axios from 'axios';
 
 MysqlDataSource.initialize()
   .then(async () => {
@@ -38,6 +39,18 @@ MysqlDataSource.initialize()
 
 const app = express();
 
+axios
+  .get('https://4fa3-177-188-46-238.ngrok-free.app', {
+    headers: {
+      'ngrok-skip-browser-warning': 'true' // ou User-Agent personalizado
+    }
+  })
+  .then((response) => {
+    console.log(response.data);
+  })
+  .catch((error) => {
+    console.error(error);
+  });
 const updateArtistsTable = new GetArtistsSheetToDatabase();
 updateArtistsTable.getSheetToDatabase();
 

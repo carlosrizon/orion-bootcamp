@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import UserValidator from './validator/userValidator';
+import UserValidator from './validator/UserValidator';
 import { UserController } from './controller/UserController';
 import { AuthController } from './controller/AuthController';
 import { authenticateToken } from './middleware/AuthMiddleware';
@@ -22,6 +22,7 @@ import {
   validateGetComment,
   validatePostComment
 } from './validator/commentEndpointsValidators';
+import { PaymentController } from './controller/PaymentController';
 
 const router = Router();
 
@@ -38,6 +39,12 @@ router.post(
   new UserValidator().verify,
   new UserController().create
 );
+
+router.post(
+  '/v1/paymentnotifications',
+  new PaymentController().reciveNotificationPayment
+);
+router.post('/v1/createpayment', new PaymentController().createPayment);
 
 router.get('/v1/check', new AuthController().confirmRegistration);
 router.post('/v1/recovery', new RecoveryController().validateUserEmail);
