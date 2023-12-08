@@ -18,13 +18,13 @@ export class Comments {
   @JoinColumn({ name: 'user_id' })
   user: User;
 
-  @Column()
+  @Column({ type: 'varchar', length: 300 })
   comment: string;
 
   @CreateDateColumn()
   createdAt: Date;
 
-  @Column()
+  @Column({ type: 'int' })
   categoryId: number;
 
   @Column({ type: 'enum', enum: Category })

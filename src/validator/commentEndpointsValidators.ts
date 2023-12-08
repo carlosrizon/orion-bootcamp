@@ -13,6 +13,11 @@ export const validatePostComment = [
     .isInt({ gt: 0 })
     .withMessage('O ID da categoria deve ser um número positivo inteiro.'),
 
+  body('comment')
+    .isString()
+    .isLength({ max: 300 })
+    .withMessage('O comentário deve ter no máximo 300 caracteres.'),
+
   (req: Request, res: Response, next: NextFunction) => {
     const errors = validationResult(req);
 

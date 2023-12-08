@@ -20,9 +20,15 @@ export class CommentController {
    *       - in: path
    *         name: category
    *         required: true
-   *         description: A categoria do comentário (comics, series, stories, events)
    *         schema:
    *           type: string
+   *           enum:
+   *             - characters
+   *             - comics
+   *             - series
+   *             - stories
+   *             - events
+   *         description: Categoria do card
    *       - in: path
    *         name: categoryId
    *         required: true
