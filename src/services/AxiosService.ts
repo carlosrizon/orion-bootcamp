@@ -3,7 +3,7 @@ import ResponseMarvelModel from '../models/ResponseMarvelModel';
 import MarvelParamsModel from '../models/MarvelParamsModel';
 import { ResponseCategory } from '../models/ResponseCategoryType';
 import MarvelParamsDefinition from '../utils/MarvelParamsDefinition';
-import ParamsWithUrlModel from 'models/ParamsWithUrlModel';
+import ParamsWithUrlModel from '../models/ParamsWithUrlModel';
 
 /**
  * Classe que implementa operação de requisição de dados à APIs externas
