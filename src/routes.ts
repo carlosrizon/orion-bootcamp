@@ -23,7 +23,7 @@ import {
   validatePostComment
 } from './validator/commentEndpointsValidators';
 import { PaymentController } from './controller/PaymentController';
-import Payments from './entity/payment';
+import Payments from './entity/Payment';
 import QRCode from 'qrcode';
 import { MysqlDataSource } from './config/database';
 
@@ -69,7 +69,11 @@ router.post(
   '/v1/paymentnotifications',
   new PaymentController().reciveNotificationPayment
 );
-router.post('/v1/createpayment', new PaymentController().createPayment);
+router.post(
+  '/v1/createpayment',
+  authenticateToken,
+  new PaymentController().createPayment
+);
 
 router.get('/v1/check', new AuthController().confirmRegistration);
 router.post('/v1/recovery', new RecoveryController().validateUserEmail);
