@@ -3,7 +3,7 @@ import Character from './Character';
 import User from './User';
 
 /**
- * Entidade que relaciona usuários aos seus personagens marcados como favoritos
+ * Entidade que relaciona usuários {@link User} aos seus personagens {@link Character} marcados como favoritos
  */
 @Entity('user_favorites')
 export class UserFavorites {

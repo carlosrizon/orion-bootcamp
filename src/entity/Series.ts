@@ -7,7 +7,7 @@ import {
 } from 'typeorm';
 
 /**
- * Entidade com informações relacionadas a séries da Marvel
+ * Entidade com informações relacionadas às séries da Marvel
  */
 @Entity('series')
 export default class Series {

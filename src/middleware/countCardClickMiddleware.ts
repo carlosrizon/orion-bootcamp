@@ -11,6 +11,8 @@ import Comic from '../entity/Comic';
 import Series from '../entity/Series';
 import Story from '../entity/Story';
 import Event from '../entity/Event';
+import { Repository } from 'typeorm';
+import ResponseDefault from '../models/ResponseDefault';
 
 /**
  * Middleware que realiza a contabilização do clique no card pelo usuário
@@ -25,9 +27,10 @@ export async function countCardClick(req, res, next) {
     const category_id: number = Number(req.params.category_id);
     const user_id: number = req.body.user.id;
 
-    const userRepository = MysqlDataSource.getRepository(User);
+    const userRepository: Repository<User> =
+      MysqlDataSource.getRepository(User);
 
-    let statusCode, resp;
+    let statusCode: number, resp: ResponseDefault;
 
     //resposta padrão
     statusCode = 200;
@@ -44,8 +47,19 @@ export async function countCardClick(req, res, next) {
         "'."
     };
 
-    let metricsRepository, categoryRepository;
-    let metricEntry;
+    let metricsRepository:
+      | Repository<UserCharacterClicks>
+      | Repository<UserComicClicks>
+      | Repository<UserSeriesClicks>
+      | Repository<UserStoryClicks>
+      | Repository<UserEventClicks>;
+    let categoryRepository: Repository<Character> | Repository<Comic>;
+    let metricEntry:
+      | UserCharacterClicks
+      | UserComicClicks
+      | UserSeriesClicks
+      | UserStoryClicks
+      | UserEventClicks;
 
     switch (cardCategory) {
       case Category.Characters:
