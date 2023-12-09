@@ -75,7 +75,7 @@ export class CommentController {
   async createComment(req: Request, res: Response) {
     try {
       const { category, categoryId } = req.params;
-      const user_id: number = req.body.user.id;
+      const user_id = req.body.user.id;
       const comment = req.body.comment;
       const userRepository = MysqlDataSource.getRepository(User);
       const commentRepository = new CommentRepository();
@@ -108,9 +108,9 @@ export class CommentController {
       }
 
       const newComment = await commentRepository.createAndSave({
-        user: user.id,
+        user: user,
         category: category,
-        categoryId: categoryId,
+        categoryId: Number(categoryId),
         comment: comment
       });
 
