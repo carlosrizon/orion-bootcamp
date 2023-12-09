@@ -15,7 +15,7 @@ export class PaymentController {
   /**
    * @swagger
    *
-   * /v1/createpayment:
+   * /v1/paymentnotifications:
    *   post:
    *     summary: recebe notificações do gateway de pagamento
    *     description: recebe notificações do gateway de pagamento com atualizações
