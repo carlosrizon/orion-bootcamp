@@ -39,18 +39,6 @@ MysqlDataSource.initialize()
 
 const app = express();
 
-axios
-  .get('https://ba17-177-188-46-238.ngrok-free.app', {
-    headers: {
-      'ngrok-skip-browser-warning': 'true' // ou User-Agent personalizado
-    }
-  })
-  .then((response) => {
-    console.log(response.data);
-  })
-  .catch((error) => {
-    console.error(error);
-  });
 const updateArtistsTable = new GetArtistsSheetToDatabase();
 updateArtistsTable.getSheetToDatabase();
 
