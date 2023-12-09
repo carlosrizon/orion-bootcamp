@@ -10,7 +10,7 @@ async function clearArtistsTable() {
   try {
     const artistsRepository = MysqlDataSource.getRepository(Artist);
 
-    const allArtists = await artistsRepository.find();
+    const allArtists: Artist[] = await artistsRepository.find();
 
     for (const artist of allArtists) {
       await artistsRepository.remove(artist);
@@ -42,7 +42,7 @@ export default class GetArtistsSheetToDatabase {
       await clearArtistsTable();
 
       const values = res.data.values;
-      let length;
+      let length: number;
       //para cada linha da planilha
       for (const row of values) {
         length = row.length;
