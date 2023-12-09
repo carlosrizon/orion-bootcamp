@@ -23,8 +23,7 @@ import MarvelParamsDefinition from './utils/MarvelParamsDefinition';
 import AxiosService from './services/AxiosService';
 import CategoryUpdateRepository from './repository/CategoryUpdateRepository';
 import 'dotenv/config';
-import CategoryDataArrayAnsLastOffset from 'models/CategoryDataArrayAnsLastOffset';
-import { ResponseCategory } from 'models/ResponseCategoryType';
+import CategoryDataArrayAnsLastOffset from './models/CategoryDataArrayAnsLastOffset';
 import CreateRelationsCharacterCards from './services/CreateRelationsCharacterCards';
 import GetArtistsSheetToDatabase from './services/GetArtistsSheetToDatabase';
 import axios from 'axios';
@@ -214,7 +213,7 @@ cron.schedule('0 8 * * *', async function updateCategoriesDatabases() {
               modifiedSince
             );
 
-          const dataArray: ResponseCategory[] = dataArrayAndLastOffset.data;
+          const dataArray = dataArrayAndLastOffset.data;
 
           offsetStart = dataArrayAndLastOffset.lastOffset +=
             paramsDefiner.maxMarvelAPILimit();
