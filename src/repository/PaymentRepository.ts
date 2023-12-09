@@ -19,7 +19,7 @@ export class PaymentRepository {
   /**
    * Função de criação de novos pagamentos {@link Payment} relacionados aos usuários {@link User}
    * @async
-   * @param data - objeto que contém dados para criação do pagamento
+   * @param {DeepPartial<Payment>} data - objeto que contém dados para criação do pagamento
    * @returns - retorna promise Payment a ser resolvida quando da criação do pagamento no banco de dados ou rejeitada caso não seja possível criá-lo no banco
    */
   async createAndSave(data: DeepPartial<Payment>): Promise<Payment> {
