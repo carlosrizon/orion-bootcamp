@@ -190,7 +190,7 @@ export class PaymentController {
 
       const result = await payment.create({
         body: {
-          transaction_amount: Number(process.env.PIX_VALUE) | 1.00,
+          transaction_amount: Number(process.env.PIX_VALUE) || 1.00,
           description: description,
           payment_method_id: 'pix',
           payer: {
