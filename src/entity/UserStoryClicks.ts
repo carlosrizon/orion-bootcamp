@@ -10,7 +10,7 @@ import User from './User';
 import Story from './Story';
 
 /**
- * Entidade com informações de cliques por usuário por card de história.
+ * Entidade com informações de cliques por usuário {@link User} por card de história {@link Story}
  */
 @Entity('user_story_clicks')
 export class UserStoryClicks {

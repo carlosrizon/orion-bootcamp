@@ -10,7 +10,7 @@ import Comic from './Comic';
 import User from './User';
 
 /**
- * Entidade com informações de cliques por usuário por card de quadrinho.
+ * Entidade com informações de cliques por usuário {@link User} por card de quadrinho {@link Comic}
  */
 @Entity('user_comic_clicks')
 export class UserComicClicks {

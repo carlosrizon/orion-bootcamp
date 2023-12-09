@@ -9,6 +9,9 @@ import {
 import Character from './Character';
 import User from './User';
 
+/**
+ * Entidade com informações de cliques por usuário {@link User} por card de personagem {@link Character}
+ */
 @Entity('user_character_clicks')
 export class UserCharacterClicks {
   @PrimaryGeneratedColumn()

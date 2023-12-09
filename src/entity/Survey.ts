@@ -9,7 +9,7 @@ import {
 import User from './User';
 
 /**
- * Entidade com informações relacionadas às pesquisas de satisfação dos usuários
+ * Entidade com informações relacionadas às pesquisas de satisfação dos usuários {@link User}
  */
 @Entity('surveys')
 export default class Survey {

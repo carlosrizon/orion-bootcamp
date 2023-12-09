@@ -7,7 +7,7 @@ import {
 } from 'typeorm';
 
 /**
- * Entidade com informações relacionadas a histórias da Marvel
+ * Entidade com informações relacionadas às histórias da Marvel
  */
 @Entity('stories')
 export default class Story {

@@ -2,7 +2,8 @@ import { ResponseCategory } from './ResponseCategoryType';
 
 /**
  * @interface
- * Modelo de objeto de retorno da requisição para os endpoints characters, comics, series, stories e events da Marvel
+ * Modelo de objeto de retorno da requisição para os endpoints characters, comics, series, stories e events da Marvel.
+ * {@link Character}, {@link Series}, {@link Comic}, {@link Event} e {@link Story}
  */
 export default interface ResponseMarvelModel {
   /** Resultados específicos da requisição relacionados à categoria solicitada */

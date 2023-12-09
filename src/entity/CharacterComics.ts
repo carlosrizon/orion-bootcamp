@@ -1,8 +1,10 @@
 import { Entity, PrimaryGeneratedColumn, JoinColumn, ManyToOne } from 'typeorm';
-
 import Character from './Character';
 import Comic from './Comic';
 
+/**
+ * Entidade com informações de relacionamento das entidades {@link Character} e {@link Comic}
+ */
 @Entity('character_comics')
 export class CharacterComics {
   @PrimaryGeneratedColumn()

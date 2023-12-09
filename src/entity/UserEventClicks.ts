@@ -10,7 +10,7 @@ import Event from './Event';
 import User from './User';
 
 /**
- * Entidade com informações de cliques por usuário por card de evento.
+ * Entidade com informações de cliques por usuário {@link User} por card de evento {@link Event}
  */
 @Entity('user_event_clicks')
 export class UserEventClicks {

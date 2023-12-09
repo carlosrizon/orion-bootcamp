@@ -9,6 +9,9 @@ import {
 import User from './User';
 import { Category } from '../utils/cardsMetricsUtils';
 
+/**
+ * Entidade com informações de relacionadas aos comentários dos usuários nas páginas de detalhamento na aplicação
+ */
 @Entity('comments')
 export class Comments {
   @PrimaryGeneratedColumn()
