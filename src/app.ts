@@ -40,7 +40,7 @@ MysqlDataSource.initialize()
 const app = express();
 
 axios
-  .get('https://4fa3-177-188-46-238.ngrok-free.app', {
+  .get('https://ba17-177-188-46-238.ngrok-free.app', {
     headers: {
       'ngrok-skip-browser-warning': 'true' // ou User-Agent personalizado
     }

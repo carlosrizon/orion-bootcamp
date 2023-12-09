@@ -23,6 +23,9 @@ import {
   validatePostComment
 } from './validator/commentEndpointsValidators';
 import { PaymentController } from './controller/PaymentController';
+import Payments from './entity/payment';
+import QRCode from 'qrcode';
+import { MysqlDataSource } from './config/database';
 
 const router = Router();
 
@@ -32,6 +35,28 @@ router.all('/v1/dashboard', authenticateToken, (req, res) => {
 });
 
 router.post('/v1/login', new AuthController().login);
+router.post('/v1/qrcode/:id', async (req: Request, res: Response) => {
+  const paymentRepository = MysqlDataSource.getRepository(Payments);
+  const orderId = req.params.id;
+  const order = await paymentRepository.findOneBy({
+    paymentId: Number(orderId)
+  });
+  if (order) {
+    const qrCodeDataUrl = await QRCode.toDataURL(order.qrcode);
+    console.log(qrCodeDataUrl);
+    return res.status(201).send({
+      date: new Date(),
+      status: true,
+      data: { image: qrCodeDataUrl, qrcode: order.qrcode }
+    });
+  }
+
+  return res.status(400).send({
+    date: new Date(),
+    status: false,
+    data: 'Pedido não encontrado.'
+  });
+});
 
 // endpoint para cadastro de novos usuários
 router.post(

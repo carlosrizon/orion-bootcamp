@@ -8,7 +8,8 @@ export default class MarvelDataFormatter {
       'enName',
       'enTitle',
       'thumb',
-      'isTranslated'
+      'isTranslated',
+      'link'
     ];
     const formattedObjects: CategoryModel[] = await Promise.all(
       objectsArray.map(async (object) => {

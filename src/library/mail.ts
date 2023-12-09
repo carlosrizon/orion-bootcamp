@@ -80,4 +80,27 @@ export class EmailSender {
       console.error('Erro ao enviar email de mudança de senha.', err);
     }
   }
+
+  async sendQrcodePayment(id: number, user: User) {
+    try {
+      await this.transporter.sendMail({
+        from: 'MarvelPedia <marvelpediaorion@hotmail.com>',
+        to: user.email,
+        subject: 'MarvelPedia - Adquirir poster exclusivo!',
+        html: `<h2>Olá ${user.firstName}!</h2>
+        <p>Agradecemos pela preferência pela MarvelPedia e por contribuir com a nossa comunidade artística!</p><br>
+        <p>Segue aqui o QR code para finalizar a sua compra do poster, que será produzido com exclusividade e enviado em até 10 dias!</p>
+        <h3><p><a href="${URL_FRONT}/payment?id=${id}" target="_blank">Efetuar pagamento</a></p></h3><br>
+        <p>Em caso de dúvidas ou problemas, nossa equipe de suporte está à disposição para ajudar.</p>
+        <p>Tenha um ótimo dia!</p><br>
+        <p>Atenciosamente,</p>
+        <p>A Equipe MarvelPedia</p>
+        `,
+        text: 'Olá, Efetue o pagamento pelo Qr Code.'
+      });
+      console.log('Email para pagamento enviado com sucesso.');
+    } catch (err) {
+      console.error('Erro ao enviar email para pagamento.', err);
+    }
+  }
 }
