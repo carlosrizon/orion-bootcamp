@@ -1,4 +1,4 @@
-import { Repository } from 'typeorm';
+import { DeepPartial, Repository } from 'typeorm';
 import { MysqlDataSource } from '../config/database';
 import Survey from '../entity/Survey';
 import User from '../entity/User';
@@ -13,10 +13,10 @@ export default class SurveyRepository {
   /**
    * Função de criação de novos registros de pesquisa de usuário no database Survey
    * @async
-   * @param survey - Objeto do tipo Survey que expande interface SurveyModel com adição da instância do usuário relacionado
+   * @param {DeepPartial<Survey>} survey - Objeto do tipo Survey que expande interface SurveyModel com adição da instância do usuário relacionado
    * @returns {Promise<void>} - Retorna promise a ser resolvida quando da criação do registro da pesquisa no database
    */
-  async createAndSave(survey): Promise<Survey> {
+  async createAndSave(survey: DeepPartial<Survey>): Promise<Survey> {
     const newSurvey: Survey = this._repository.manager.create(Survey, {
       comment: survey.comment,
       grade: survey.grade,
@@ -29,7 +29,7 @@ export default class SurveyRepository {
 
   /**
    * Função que dado um determinado usuário, verifica data de última pesquisa associada a esse e, existindo, retorna objeto contendo ambas as informações
-   * @param id - Número de ID do usuário
+   * @param {number} id - Número de ID do usuário
    * @returns {Primise<UserAndLastSurveyDates>} - Promise de retorno de objeto do tipo {@link UserAndLastSurveyDates} quando da sua resolução
    */
   async getUserSurveyDatesByID(id: number): Promise<UserAndLastSurveyDates> {

@@ -3,7 +3,7 @@ import ResponseMarvelModel from '../models/ResponseMarvelModel';
 import MarvelParamsModel from '../models/MarvelParamsModel';
 import { ResponseCategory } from '../models/ResponseCategoryType';
 import MarvelParamsDefinition from '../utils/MarvelParamsDefinition';
-import ParamsWithUrlModel from 'models/ParamsWithUrlModel';
+import ParamsWithUrlModel from '../models/ParamsWithUrlModel';
 
 /**
  * Classe que implementa operação de requisição de dados à APIs externas
@@ -36,7 +36,7 @@ export default class AxiosService {
    * {@link Character}, {@link Series}, {@link Comic}, {@link Event} e {@link Story}
    * @async
    * @param {number} offset - deslocamento (número de resultados ignorados) a ser aplicado na requisição
-   * @param {string} modifiedSince - string no formato data correspondente à data base de modificação de recursos aplicada na requisição
+   * @param {Date} modifiedSince - sdata correspondente à data base de modificação de recursos aplicada na requisição
    * @returns retorna promise de array de objetos do tipo {@link ResponseCategory} a ser resolvida quando do retorno dos dados pela API ou rejeitada caso não haja o retorno esperado
    */
   async getData(

@@ -5,6 +5,9 @@ import {
   UpdateDateColumn
 } from 'typeorm';
 
+/**
+ * Entidade con informações relacionadas às métricas de ativação de registros dos usuários
+ */
 @Entity('total_registrations_completed')
 export default class TotalRegistrations {
   @PrimaryGeneratedColumn()

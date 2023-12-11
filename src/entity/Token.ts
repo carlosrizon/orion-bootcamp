@@ -8,6 +8,9 @@ import {
 } from 'typeorm';
 import User from './User';
 
+/**
+ * Entidade com informações relacionadas aos tokens de autenticação dos usuários {@link User}
+ */
 @Entity()
 export class Token {
   @PrimaryGeneratedColumn('uuid')

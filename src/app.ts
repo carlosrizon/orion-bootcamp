@@ -23,8 +23,7 @@ import MarvelParamsDefinition from './utils/MarvelParamsDefinition';
 import AxiosService from './services/AxiosService';
 import CategoryUpdateRepository from './repository/CategoryUpdateRepository';
 import 'dotenv/config';
-import CategoryDataArrayAnsLastOffset from 'models/CategoryDataArrayAnsLastOffset';
-import { ResponseCategory } from 'models/ResponseCategoryType';
+import CategoryDataArrayAnsLastOffset from './models/CategoryDataArrayAnsLastOffset';
 import CreateRelationsCharacterCards from './services/CreateRelationsCharacterCards';
 import GetArtistsSheetToDatabase from './services/GetArtistsSheetToDatabase';
 import axios from 'axios';
@@ -39,18 +38,6 @@ MysqlDataSource.initialize()
 
 const app = express();
 
-axios
-  .get('https://ba17-177-188-46-238.ngrok-free.app', {
-    headers: {
-      'ngrok-skip-browser-warning': 'true' // ou User-Agent personalizado
-    }
-  })
-  .then((response) => {
-    console.log(response.data);
-  })
-  .catch((error) => {
-    console.error(error);
-  });
 const updateArtistsTable = new GetArtistsSheetToDatabase();
 updateArtistsTable.getSheetToDatabase();
 
@@ -226,7 +213,7 @@ cron.schedule('0 8 * * *', async function updateCategoriesDatabases() {
               modifiedSince
             );
 
-          const dataArray: ResponseCategory[] = dataArrayAndLastOffset.data;
+          const dataArray = dataArrayAndLastOffset.data;
 
           offsetStart = dataArrayAndLastOffset.lastOffset +=
             paramsDefiner.maxMarvelAPILimit();

@@ -1,6 +1,6 @@
 /**
  * @interface
- * Modelo de objeto Survey
+ * Modelo de objeto Survey {@link Survey}
  */
 export default interface SurveyModel {
   /**

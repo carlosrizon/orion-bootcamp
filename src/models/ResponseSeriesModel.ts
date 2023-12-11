@@ -1,6 +1,6 @@
 /**
  * @interface
- * Modelo de objeto principal de retorno da requisição para o endpoint /v1/public/series da Marvel
+ * Modelo de objeto principal de retorno da requisição para o endpoint /v1/public/series {@link Series} da Marvel
  */
 export default interface ResponseSeriesModel {
   /** ID único da série */

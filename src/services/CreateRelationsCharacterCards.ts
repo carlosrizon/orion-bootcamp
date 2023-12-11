@@ -8,22 +8,27 @@ import Story from '../entity/Story';
 import { CharacterSeries } from '../entity/CharacterSeries';
 import { CharacterEvents } from '../entity/CharacterEvents';
 import { CharacterStories } from '../entity/CharacterStories';
-import ResponseCharacterModel from 'models/ResponseCharacterModel';
+import ResponseCharacterModel from '../models/ResponseCharacterModel';
+import ResponseMarvelModel from '../models/ResponseMarvelModel';
 
+/**
+ * Classe que implementa relacionamento da categoria Character {@link Character} com demais categorias Marvel:
+ * {@link Comic}, {@link Event}, {@link Series} e {@link Story}
+ */
 export default class CreateRelationsCharacterCards {
   static async createRelations(dataArray) {
     try {
       const charactersRepository = MysqlDataSource.getRepository(Character);
-      let character;
+      let character: Character;
 
       const comicsRepository = MysqlDataSource.getRepository(Comic);
-      let comic;
+      let comic: Comic;
       const seriesRepository = MysqlDataSource.getRepository(Series);
-      let series;
+      let series: Series;
       const eventsRepository = MysqlDataSource.getRepository(Event);
-      let event;
+      let event: Event;
       const storiesRepository = MysqlDataSource.getRepository(Story);
-      let story;
+      let story: Story;
 
       const characterComicsRepository =
         MysqlDataSource.getRepository(CharacterComics);
@@ -33,10 +38,11 @@ export default class CreateRelationsCharacterCards {
         MysqlDataSource.getRepository(CharacterEvents);
       const characterStoriesRepository =
         MysqlDataSource.getRepository(CharacterStories);
-      let characterComic;
-      let characterSeries;
-      let characterEvent;
-      let characterStory;
+
+      let characterComic: CharacterComics;
+      let characterSeries: CharacterSeries;
+      let characterEvent: CharacterEvents;
+      let characterStory: CharacterStories;
 
       for (const dataObject of dataArray as Array<ResponseCharacterModel>) {
         //pegar idMarvel do personagem e encontrar ele
@@ -48,7 +54,7 @@ export default class CreateRelationsCharacterCards {
 
         //relaciona personagem a comics
         for (const item of dataObject.comics.items) {
-          const match = item.resourceURI.match(/\d+$/);
+          const match: RegExpMatchArray = item.resourceURI.match(/\d+$/);
 
           let comicId: number;
           if (match) {
@@ -85,7 +91,7 @@ export default class CreateRelationsCharacterCards {
 
         //relaciona personagem a series
         for (const item of dataObject.series.items) {
-          const match = item.resourceURI.match(/\d+$/);
+          const match: RegExpMatchArray = item.resourceURI.match(/\d+$/);
 
           let seriesId: number;
           if (match) {
@@ -103,12 +109,13 @@ export default class CreateRelationsCharacterCards {
 
           //fazer relacionamento personagem-series
           if (character && series) {
-            const existingRecord = await characterSeriesRepository.findOne({
-              where: {
-                character: { id: character.id },
-                series: { id: series.id }
-              }
-            });
+            const existingRecord: CharacterSeries =
+              await characterSeriesRepository.findOne({
+                where: {
+                  character: { id: character.id },
+                  series: { id: series.id }
+                }
+              });
 
             if (!existingRecord) {
               characterSeries = new CharacterSeries();
@@ -122,7 +129,7 @@ export default class CreateRelationsCharacterCards {
 
         //relaciona personagem a events
         for (const item of dataObject.events.items) {
-          const match = item.resourceURI.match(/\d+$/);
+          const match: RegExpMatchArray = item.resourceURI.match(/\d+$/);
 
           let eventId: number;
           if (match) {
@@ -159,7 +166,7 @@ export default class CreateRelationsCharacterCards {
 
         //relaciona personagem a stories
         for (const item of dataObject.stories.items) {
-          const match = item.resourceURI.match(/\d+$/);
+          const match: RegExpMatchArray = item.resourceURI.match(/\d+$/);
 
           let storyId: number;
           if (match) {
@@ -194,6 +201,8 @@ export default class CreateRelationsCharacterCards {
           }
         }
       }
-    } catch (error) {}
+    } catch (error) {
+      console.log(error.message);
+    }
   }
 }

@@ -1,6 +1,9 @@
 import { Repository } from 'typeorm';
 import { Token } from '../entity/Token';
 
+/**
+ * Classe que implementa manipulação e busca de status de uso de token do usuário
+ */
 export class TokenRepository extends Repository<Token> {
   async findUnusedTokenByUserIdAndToken(
     userId: number,

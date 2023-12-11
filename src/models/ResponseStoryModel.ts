@@ -1,6 +1,6 @@
 /**
  * @interface
- * Modelo de objeto principal de retorno da requisição para o endpoint /v1/public/stories da Marvel
+ * Modelo de objeto principal de retorno da requisição para o endpoint /v1/public/stories {@link Story} da Marvel
  */
 export default interface ResponseStoryModel {
   /** ID único da história */

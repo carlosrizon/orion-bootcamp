@@ -9,6 +9,9 @@ import {
 } from 'typeorm';
 import User from './User';
 
+/**
+ * Entidade com informações relacionadas aos pagamentos efetuados pelos usuários {@link User} na aplicação
+ */
 @Entity('payments')
 export default class Payments {
   @PrimaryGeneratedColumn()

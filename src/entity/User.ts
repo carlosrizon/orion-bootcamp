@@ -10,7 +10,7 @@ import Survey from './Survey';
 import UserAccessLog from './UserAccessLog';
 
 /**
- * Entidade com informações relacionadas a usuários da aplicação
+ * Entidade com informações relacionadas aos usuários da aplicação
  */
 @Entity('users')
 export default class User {

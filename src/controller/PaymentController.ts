@@ -8,10 +8,10 @@ import Payments from '../entity/Payment';
 import { EmailSender } from '../library/mail';
 
 const mercadoPagoToken = process.env.TOKEN_MERCADOPAGO;
-const NOTIFICATION_WEB = process.env.NOTIFICATION_WEB;
+const NOTIFICATION_WEBHOOK = process.env.NOTIFICATION_WEBHOOK;
+const PIX_VALUE = process.env.PIX_VALUE;
 const client = new MercadoPagoConfig({ accessToken: mercadoPagoToken });
 const payment = new Payment(client);
-
 export class PaymentController {
   /**
    * @swagger
@@ -69,13 +69,11 @@ export class PaymentController {
   async reciveNotificationPayment(req: Request, res: Response) {
     const paymentRepository = MysqlDataSource.getRepository(Payments);
     const notification = req.body;
-    console.log(notification);
     const paymentId = notification?.data?.id;
     if (
       notification.action === 'payment.created' &&
       notification.type === 'payment'
     ) {
-      console.log('entrou created', notification);
       return res.status(201).send({
         date: new Date(),
         status: true,
@@ -93,7 +91,6 @@ export class PaymentController {
       const statusPayment = await dataPayment.status;
 
       if (paymentId && statusPayment === 'approved') {
-        console.log('Entrou aprovado', notification);
         const paymentRecord = await paymentRepository.findOneBy({
           paymentId: Number(paymentId)
         });
@@ -111,7 +108,6 @@ export class PaymentController {
           data: 'Pagamento aprovado com sucesso.'
         });
       }
-      console.log(dataPayment);
     }
 
     if (paymentId) {
@@ -192,14 +188,13 @@ export class PaymentController {
       const paymentRepository = await MysqlDataSource.getRepository(Payments);
       const userRepository = await MysqlDataSource.getRepository(User);
       const user = await userRepository.findOneBy({ id: user_id });
-      const notification_url =
-        'https://3e6a-177-188-46-238.ngrok-free.app/v1/paymentnotifications';
+      const notification_url = `${NOTIFICATION_WEBHOOK}/v1/paymentnotifications`;
       const description = 'Marvelpedia - Adquirir um pôster exclusivo!';
       const idempotencyKey = randomUUID();
 
       const result = await payment.create({
         body: {
-          transaction_amount: 1.0,
+          transaction_amount: Number(process.env.PIX_VALUE) || 1.0,
           description: description,
           payment_method_id: 'pix',
           payer: {
