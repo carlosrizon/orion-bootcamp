@@ -29,6 +29,7 @@ services:
       EMAIL_USER: ${EMAIL_USER}
       EMAIL_PASSWORD: ${EMAIL_PASSWORD}
       URL_FRONT: ${URL_FRONT}
+      NOTIFICATION_WEB: ${NOTIFICATION_WEB}
       TOKEN_MERCADOPAGO: ${TOKEN_MERCADOPAGO}
       TESTONE_USER_PASSWORD: ${TESTONE_USER_PASSWORD} # usuário teste definido na migration
       TESTTWO_USER_PASSWORD: ${TESTTWO_USER_PASSWORD} # usuário teste definido na migration

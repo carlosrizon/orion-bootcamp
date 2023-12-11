@@ -26,6 +26,7 @@ import { PaymentController } from './controller/PaymentController';
 import Payments from './entity/Payment';
 import QRCode from 'qrcode';
 import { MysqlDataSource } from './config/database';
+import User from './entity/User';
 
 const router = Router();
 
@@ -36,18 +37,28 @@ router.all('/v1/dashboard', authenticateToken, (req, res) => {
 
 router.post('/v1/login', new AuthController().login);
 router.post('/v1/qrcode/:id', async (req: Request, res: Response) => {
+  const userRepository = await MysqlDataSource.getRepository(User);
   const paymentRepository = MysqlDataSource.getRepository(Payments);
   const orderId = req.params.id;
-  const order = await paymentRepository.findOneBy({
-    paymentId: Number(orderId)
+  const order = await paymentRepository.findOne({
+    where: { paymentId: Number(orderId) },
+    relations: ['user']
+  });
+
+  const qrCodeDataUrl = await QRCode.toDataURL(order.qrcode);
+  const user = await userRepository.findOneBy({
+    id: order.user.id
   });
   if (order) {
-    const qrCodeDataUrl = await QRCode.toDataURL(order.qrcode);
-    console.log(qrCodeDataUrl);
     return res.status(201).send({
       date: new Date(),
       status: true,
-      data: { image: qrCodeDataUrl, qrcode: order.qrcode }
+      data: {
+        image: qrCodeDataUrl,
+        qrcode: order.qrcode,
+        user_name: user.firstName,
+        user_id: user.id
+      }
     });
   }
 

@@ -108,7 +108,7 @@ export class EmailSender {
         subject: 'MarvelPedia - Adquirir poster exclusivo!',
         html: `<h2>Olá ${user.firstName}!</h2>
         <p>Agradecemos pela preferência pela MarvelPedia e por contribuir com a nossa comunidade artística!</p><br>
-        <p>Segue aqui o QR code para finalizar a sua compra do poster, que será produzido com exclusividade e enviado em até 10 dias!</p>
+        <p>Segue aqui o QR code para finalizar a sua compra do poster, que será produzido com exclusividade e enviado em até 10 dias!</p><br>
         <h3><p><a href="${URL_FRONT}/payment?id=${id}" target="_blank">Efetuar pagamento</a></p></h3><br>
         <p>Em caso de dúvidas ou problemas, nossa equipe de suporte está à disposição para ajudar.</p>
         <p>Tenha um ótimo dia!</p><br>
@@ -127,7 +127,7 @@ export class EmailSender {
    * Função que implementa envio de confirmação de pagamento
    * @param {User} user - usuário que efetuou a compra
    */
-  public async sendPaymentConfirmationEmail(user: User): Promise<void> {
+  public async sendPaymentFailureEmail(user: User): Promise<void> {
     try {
       await this.transporter.sendMail({
         from: 'MarvelPedia <marvelpediaorion@hotmail.com>',
@@ -152,7 +152,7 @@ export class EmailSender {
    * Função que implementa envio de e-mail com feedback de falaha na efetivação do pagamento ao usuário
    * @param {User} user - usuário que solicitou a compra
    */
-  public async sendPaymentFailureEmail(user: User): Promise<void> {
+  public async sendPaymentConfirmationEmail(user: User): Promise<void> {
     try {
       await this.transporter.sendMail({
         from: 'MarvelPedia <marvelpediaorion@hotmail.com>',

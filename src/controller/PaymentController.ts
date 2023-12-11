@@ -8,9 +8,10 @@ import Payments from '../entity/Payment';
 import { EmailSender } from '../library/mail';
 
 const mercadoPagoToken = process.env.TOKEN_MERCADOPAGO;
+const NOTIFICATION_WEBHOOK = process.env.NOTIFICATION_WEBHOOK;
+const PIX_VALUE = process.env.PIX_VALUE;
 const client = new MercadoPagoConfig({ accessToken: mercadoPagoToken });
 const payment = new Payment(client);
-
 export class PaymentController {
   /**
    * @swagger
@@ -68,8 +69,7 @@ export class PaymentController {
   async reciveNotificationPayment(req: Request, res: Response) {
     const paymentRepository = MysqlDataSource.getRepository(Payments);
     const notification = req.body;
-    console.log(notification);
-
+    const paymentId = notification?.data?.id;
     if (
       notification.action === 'payment.created' &&
       notification.type === 'payment'
@@ -79,28 +79,28 @@ export class PaymentController {
         status: true,
         data: 'Pagamento foi criado.'
       });
-    }
-    if (
+    } else if (
       notification.action === 'payment.updated' &&
-      notification.type === 'payment'
+      notification.type === 'payment' &&
+      paymentId
     ) {
-      const paymentId = notification.data.id;
       const dataPayment = await payment.get({
         id: paymentId
       });
 
       const statusPayment = await dataPayment.status;
 
-      if (statusPayment === 'approved') {
+      if (paymentId && statusPayment === 'approved') {
         const paymentRecord = await paymentRepository.findOneBy({
-          paymentId: paymentId
+          paymentId: Number(paymentId)
         });
         if (paymentRecord) {
           paymentRecord.status = 'approved';
           await MysqlDataSource.manager.save(paymentRecord);
         }
-
-        new EmailSender().sendPaymentConfirmationEmail(paymentRecord.user);
+        if (paymentRecord?.user?.email) {
+          new EmailSender().sendPaymentConfirmationEmail(paymentRecord.user);
+        }
 
         return res.status(200).send({
           date: new Date(),
@@ -108,14 +108,16 @@ export class PaymentController {
           data: 'Pagamento aprovado com sucesso.'
         });
       }
-      console.log(dataPayment);
     }
 
-    const paymentId = notification.data.id;
-    const paymentRecord = await paymentRepository.findOneBy({
-      paymentId: paymentId
-    });
-    new EmailSender().sendPaymentFailureEmail(paymentRecord.user);
+    if (paymentId) {
+      const paymentRecord = await paymentRepository.findOneBy({
+        paymentId: Number(paymentId)
+      });
+      if (paymentRecord?.user?.email) {
+        new EmailSender().sendPaymentFailureEmail(paymentRecord.user);
+      }
+    }
 
     return res.status(500).send({
       date: new Date(),
@@ -182,48 +184,43 @@ export class PaymentController {
    */
   async createPayment(req: Request, res: Response) {
     try {
-      const user_email = req.body.email;
+      const user_id = req.body.user.id;
+      const paymentRepository = await MysqlDataSource.getRepository(Payments);
       const userRepository = await MysqlDataSource.getRepository(User);
-      const notification_url = 'betaorionis.ddns.net/v1/paymentnotifications'; //Endpoint onde o webooks envia notificações do pagamento.
+      const user = await userRepository.findOneBy({ id: user_id });
+      const notification_url = `${NOTIFICATION_WEBHOOK}/v1/paymentnotifications`;
       const description = 'Marvelpedia - Adquirir um pôster exclusivo!';
-      const idempotencyKey = randomUUID(); //Key única aleatória para identificação de cada pedido.
+      const idempotencyKey = randomUUID();
 
       const result = await payment.create({
         body: {
-          transaction_amount: Number(process.env.PIX_VALUE) || 1.00,
+          transaction_amount: Number(process.env.PIX_VALUE) || 1.0,
           description: description,
           payment_method_id: 'pix',
           payer: {
-            email: req.body.email
+            email: user.email
           },
           notification_url: notification_url
         },
         requestOptions: { idempotencyKey: idempotencyKey }
       });
 
-      const user = await userRepository.findOneBy({ email: user_email });
       const paymentEntity = new Payments();
       paymentEntity.paymentId = result.id;
       paymentEntity.status = result.status;
       paymentEntity.user = user;
-      paymentEntity.email = user_email;
-      paymentEntity.qrcode =
-        result.point_of_interaction.transaction_data.qr_code;
+      (paymentEntity.email = user.email),
+        (paymentEntity.qrcode =
+          result.point_of_interaction.transaction_data.qr_code);
 
       await MysqlDataSource.manager.save(paymentEntity);
       new EmailSender().sendQrcodePayment(result.id, user);
-
-      return res.status(201).send({
-        date: new Date(),
-        status: false,
-        data: paymentEntity.paymentId
-      });
+      return res
+        .status(200)
+        .send({ message: 'Pagamento criado com sucesso.', data: result });
     } catch (error) {
-      return res.status(500).send({
-        date: new Date(),
-        status: false,
-        data: 'Erro ao criar pagamento.'
-      });
+      console.error(error);
+      return res.status(500).send({ error: 'Erro ao criar pagamento.' });
     }
   }
 }
